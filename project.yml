@@ -28,6 +28,8 @@ targets:
     info:
       path: MagicBridge/Info.plist
       properties:
+        CFBundleShortVersionString: "1.0.3"
+        CFBundleVersion: "4"
         LSUIElement: true
         NSBluetoothAlwaysUsageDescription: "MagicBridge needs Bluetooth access to detect and switch your Magic devices between Macs."
     settings:
@@ -39,6 +41,7 @@ targets:
         CODE_SIGN_STYLE: Automatic
         DEVELOPMENT_TEAM: ""
         CODE_SIGN_ENTITLEMENTS: MagicBridge/MagicBridge.entitlements
+        CODE_SIGN_ALLOW_ENTITLEMENTS_MODIFICATION: YES
         ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
     postBuildScripts:
       - name: Make blueutil executable

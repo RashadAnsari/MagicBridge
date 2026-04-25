@@ -105,11 +105,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupNetworkCallbacks() {
         network.appState = appState
 
-        // Peer asked us to release all devices
-        network.onReceiveRelease = { [weak self] acknowledge in
+        // Peer asked us to release specific devices
+        network.onReceiveRelease = { [weak self] deviceIDs, acknowledge in
             guard let self else { return }
             self.appState.statusMessage = "Releasing for other Mac..."
-            self.bluetooth.releaseAll(devices: self.appState.enabledDevices) { success in
+            let toRelease = self.appState.enabledDevices.filter { deviceIDs.contains($0.id) }
+            self.bluetooth.releaseAll(devices: toRelease) { success in
                 self.appState.statusMessage =
                     success ? "Released" : "Some devices failed to release"
                 self.refreshDevices()
@@ -126,7 +127,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appState.statusMessage = "Connecting \(device.name)..."
 
         if appState.peerConnected {
-            network.sendRelease { [weak self] in
+            network.sendRelease(devices: [device]) { [weak self] in
                 guard let self else { return }
                 self.bluetooth.connect(device: device) { _ in
                     self.appState.isSwitching = false
@@ -159,7 +160,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appState.statusMessage = "Switching..."
 
         if appState.peerConnected {
-            network.sendRelease { [weak self] in
+            network.sendRelease(devices: targets) { [weak self] in
                 guard let self else { return }
                 self.bluetooth.connectAll(devices: targets) {
                     self.appState.isSwitching = false

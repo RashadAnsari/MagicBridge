@@ -15,7 +15,7 @@ class NetworkManager: NSObject {
     private var peerAddresses: [String: (host: String, port: Int)] = [:]
 
     weak var appState: AppState?
-    var onReceiveRelease: ((@escaping () -> Void) -> Void)?
+    var onReceiveRelease: (([String], @escaping () -> Void) -> Void)?
 
     override init() {
         let key = "magicbridge_instance_id"
@@ -97,22 +97,25 @@ class NetworkManager: NSObject {
 
     // MARK: - Send release to all peers
 
-    func sendRelease(completion: @escaping () -> Void) {
+    func sendRelease(devices: [MagicDevice], completion: @escaping () -> Void) {
         let targets = peerAddresses
         guard !targets.isEmpty else {
             completion()
             return
         }
 
+        let deviceIDs = devices.map { $0.id }
         let group = DispatchGroup()
         for (_, addr) in targets {
             group.enter()
-            sendReleaseTo(host: addr.host, port: addr.port) { group.leave() }
+            sendReleaseTo(host: addr.host, port: addr.port, deviceIDs: deviceIDs) { group.leave() }
         }
         group.notify(queue: .main) { completion() }
     }
 
-    private func sendReleaseTo(host: String, port: Int, completion: @escaping () -> Void) {
+    private func sendReleaseTo(
+        host: String, port: Int, deviceIDs: [String], completion: @escaping () -> Void
+    ) {
         let endpoint = NWEndpoint.hostPort(
             host: NWEndpoint.Host(host),
             port: NWEndpoint.Port(rawValue: UInt16(port))!)
@@ -133,7 +136,10 @@ class NetworkManager: NSObject {
             switch state {
             case .ready:
                 self?.send(
-                    ["action": "release_devices", "sender": self?.instanceID ?? ""], on: conn)
+                    [
+                        "action": "release_devices", "sender": self?.instanceID ?? "",
+                        "devices": deviceIDs,
+                    ], on: conn)
                 self?.receive(on: conn, onDevicesReleased: finish)
             case .failed: finish()
             default: break
@@ -144,7 +150,7 @@ class NetworkManager: NSObject {
 
     // MARK: - Messaging
 
-    private func send(_ msg: [String: String], on conn: NWConnection) {
+    private func send(_ msg: [String: Any], on conn: NWConnection) {
         guard let data = try? JSONSerialization.data(withJSONObject: msg) else { return }
         conn.send(content: data, completion: .contentProcessed { _ in })
     }
@@ -152,15 +158,19 @@ class NetworkManager: NSObject {
     private func receive(on conn: NWConnection, onDevicesReleased: (() -> Void)? = nil) {
         conn.receive(minimumIncompleteLength: 1, maximumLength: 4096) { [weak self] data, _, _, _ in
             guard let self, let data, !data.isEmpty else { return }
-            guard let msg = try? JSONSerialization.jsonObject(with: data) as? [String: String],
-                let action = msg["action"]
+            guard let msg = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+                let action = msg["action"] as? String
             else { return }
+            let deviceIDs = msg["devices"] as? [String] ?? []
             switch action {
             case "release_devices":
                 DispatchQueue.main.async {
-                    self.onReceiveRelease? {
+                    self.onReceiveRelease?(deviceIDs) {
                         self.send(
-                            ["action": "devices_released", "sender": self.instanceID], on: conn)
+                            [
+                                "action": "devices_released", "sender": self.instanceID,
+                                "devices": deviceIDs,
+                            ], on: conn)
                     }
                 }
             case "devices_released":

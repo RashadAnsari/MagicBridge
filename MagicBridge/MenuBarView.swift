@@ -29,8 +29,15 @@ struct MenuBarView: View {
     // MARK: - Sections
 
     private var header: some View {
-        Text("MagicBridge")
-            .font(.system(size: 15, weight: .bold))
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Text("MagicBridge")
+                .font(.system(size: 15, weight: .bold))
+            if let version = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String {
+                Text("v\(version)")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 
     private var otherMacsSection: some View {
