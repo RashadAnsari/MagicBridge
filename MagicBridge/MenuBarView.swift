@@ -19,6 +19,7 @@ struct MenuBarView: View {
             switchAllButton
             releaseAllButton
             Divider()
+            launchAtLoginToggle
             quitButton
         }
         .padding(16)
@@ -115,6 +116,21 @@ struct MenuBarView: View {
             appState.isSwitching
                 || appState.enabledDevices.isEmpty
                 || appState.enabledDevices.allSatisfy { !$0.isConnected })
+    }
+
+    private var launchAtLoginToggle: some View {
+        Button(action: { appState.setLaunchAtLogin(!appState.launchAtLogin) }) {
+            HStack(spacing: 6) {
+                Image(systemName: appState.launchAtLogin ? "checkmark.circle.fill" : "circle")
+                    .foregroundColor(appState.launchAtLogin ? .accentColor : .secondary)
+                    .font(.system(size: 13))
+                Text("Launch at Login")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .buttonStyle(.plain)
     }
 
     private var quitButton: some View {

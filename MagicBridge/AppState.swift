@@ -1,4 +1,5 @@
 import Foundation
+import ServiceManagement
 
 struct MagicDevice: Identifiable, Equatable {
     let id: String  // Bluetooth address (xx-xx-xx-xx-xx-xx)
@@ -97,6 +98,25 @@ class AppState: ObservableObject {
             uniqueKeysWithValues: storedDevices.map {
                 ($0.id, MagicDevice(id: $0.id, name: $0.name, isConnected: false))
             })
+    }
+
+    // MARK: - Launch at Login
+
+    var launchAtLogin: Bool {
+        SMAppService.mainApp.status == .enabled
+    }
+
+    func setLaunchAtLogin(_ enabled: Bool) {
+        do {
+            if enabled {
+                try SMAppService.mainApp.register()
+            } else {
+                try SMAppService.mainApp.unregister()
+            }
+            objectWillChange.send()
+        } catch {
+            // ignore registration errors silently
+        }
     }
 
     private func saveClaimedDevices() {

@@ -66,6 +66,8 @@ DerivedData/
 *.ipa
 *.dSYM.zip
 *.dSYM
+MagicBridge.app
+MagicBridge.zip
 
 ## Playgrounds
 timeline.xctimeline
