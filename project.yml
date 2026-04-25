@@ -29,6 +29,7 @@ targets:
       path: MagicBridge/Info.plist
       properties:
         LSUIElement: true
+        NSBluetoothAlwaysUsageDescription: "MagicBridge needs Bluetooth access to detect and switch your Magic devices between Macs."
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: me.ansarihamedani.magicbridge.app
@@ -46,3 +47,4 @@ targets:
           chmod +x "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/blueutil_amd64"
     dependencies:
       - sdk: Network.framework
+      - sdk: CoreBluetooth.framework

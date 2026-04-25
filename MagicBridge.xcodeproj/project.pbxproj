@@ -14,6 +14,7 @@
 		A458D84A018CD19B8EAED224 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BFB150B39EEF1C747A5F7E4B /* Assets.xcassets */; };
 		AAEF9A528CF1D9934BF5FDFF /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D9AAA668078B250712B949 /* MenuBarView.swift */; };
 		C35636E40535DD04D690E4D4 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98EE369F9F7644B304DF1EC /* NetworkManager.swift */; };
+		D5B0A0FEE5674813B19921FB /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA327333FE0BC21951754BD /* CoreBluetooth.framework */; };
 		FD62D46B31B6FCAE6D26D545 /* MagicBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */; };
 		FF5A8CB35D982D84F8E572AF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917BFBD41D2302A39121806E /* AppState.swift */; };
 /* End PBXBuildFile section */
@@ -22,6 +23,7 @@
 		09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicBridgeApp.swift; sourceTree = "<group>"; };
 		3FD6A4DF45AC9A05438389FC /* blueutil_amd64 */ = {isa = PBXFileReference; path = blueutil_amd64; sourceTree = "<group>"; };
 		4F6A982B61811335DC5739D4 /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
+		6BA327333FE0BC21951754BD /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
 		84D9AAA668078B250712B949 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		8B7FF7F0A23BD056DCF202CE /* blueutil_arm64 */ = {isa = PBXFileReference; path = blueutil_arm64; sourceTree = "<group>"; };
@@ -37,6 +39,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				999E195D1304C1AE9DA47BDF /* Network.framework in Frameworks */,
+				D5B0A0FEE5674813B19921FB /* CoreBluetooth.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -55,6 +58,7 @@
 		452249B93A9C9E013A7207B0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				6BA327333FE0BC21951754BD /* CoreBluetooth.framework */,
 				4F6A982B61811335DC5739D4 /* Network.framework */,
 			);
 			name = Frameworks;

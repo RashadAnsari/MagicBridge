@@ -37,12 +37,13 @@ release: deps
 		CODE_SIGN_STYLE=Manual \
 		CODE_SIGN_IDENTITY="$(SIGN_IDENTITY)" \
 		CODE_SIGN_ENTITLEMENTS=MagicBridge/MagicBridge.entitlements \
-		ENABLE_HARDENED_RUNTIME=YES
+		ENABLE_HARDENED_RUNTIME=NO
 	@RELEASE_DIR=$$(find $(DERIVED_DATA) -name "$(APP_NAME).app" -path "*/Release/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null) && \
 	APP_PATH="$$RELEASE_DIR/$(APP_NAME).app" && \
 	if [ -d "$$APP_PATH" ]; then \
 		rm -rf "./$(APP_NAME).app" "./$(APP_NAME).zip"; \
 		cp -R "$$APP_PATH" "./$(APP_NAME).app"; \
+		xattr -dr com.apple.quarantine "./$(APP_NAME).app"; \
 		codesign --verify --deep --strict "./$(APP_NAME).app" && echo "Signature verified"; \
 		ditto -c -k --keepParent "./$(APP_NAME).app" "./$(APP_NAME).zip"; \
 		echo ""; \

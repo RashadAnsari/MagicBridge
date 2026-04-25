@@ -24,8 +24,28 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupPopover()
         setupNetworkCallbacks()
         network.start()
+        bluetooth.requestPermission()
         refreshDevices()
         startRefreshTimer()
+        promptLaunchAtLoginIfNeeded()
+    }
+
+    private func promptLaunchAtLoginIfNeeded() {
+        let key = "launchAtLoginPrompted"
+        guard !UserDefaults.standard.bool(forKey: key) else { return }
+        UserDefaults.standard.set(true, forKey: key)
+
+        let alert = NSAlert()
+        alert.messageText = "Launch MagicBridge at Login?"
+        alert.informativeText =
+            "MagicBridge can start automatically when you log in so your devices are always ready."
+        alert.addButton(withTitle: "Enable")
+        alert.addButton(withTitle: "Not Now")
+        alert.alertStyle = .informational
+
+        if alert.runModal() == .alertFirstButtonReturn {
+            appState.setLaunchAtLogin(true)
+        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

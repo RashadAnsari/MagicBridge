@@ -1,7 +1,17 @@
+import CoreBluetooth
 import Foundation
 
-class BluetoothManager {
+class BluetoothManager: NSObject, CBCentralManagerDelegate {
     private let btQueue = DispatchQueue(label: "com.magicbridge.bluetooth", qos: .userInitiated)
+    private var centralManager: CBCentralManager?
+
+    func requestPermission() {
+        centralManager = CBCentralManager(delegate: self, queue: .main)
+    }
+
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {
+        // Permission resolved — blueutil subprocess inherits access
+    }
 
     private var blueutilURL: URL {
         #if arch(arm64)
