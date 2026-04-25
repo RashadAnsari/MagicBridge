@@ -31,9 +31,15 @@ The menu bar icon reflects whether devices are connected to **this Mac** (active
 
 ## Installation
 
-1. Download the latest `MagicBridge.app` from releases
-2. Drag `MagicBridge.app` to your Applications folder
-3. Launch the app (it will appear in the menu bar)
+1. Download `MagicBridge.zip` from the [latest release](../../releases/latest)
+2. Unzip and drag `MagicBridge.app` to your **Applications** folder
+3. Launch it from Applications
+
+> **First launch only:** macOS will block the app because it is not from the App Store.
+> Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**.
+> You will also be prompted to grant Bluetooth access — click **Allow**.
+
+The app appears in the menu bar with no dock icon.
 
 ## Building from Source
 
