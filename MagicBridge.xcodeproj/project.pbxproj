@@ -1,0 +1,388 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		7FA3672794822C64A1CEBBA5 /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */; };
+		98216252134208D90BF09892 /* blueutil_amd64 in Resources */ = {isa = PBXBuildFile; fileRef = 3FD6A4DF45AC9A05438389FC /* blueutil_amd64 */; };
+		999E195D1304C1AE9DA47BDF /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F6A982B61811335DC5739D4 /* Network.framework */; };
+		A161A4CDBF0DB76CE1ABC04B /* blueutil_arm64 in Resources */ = {isa = PBXBuildFile; fileRef = 8B7FF7F0A23BD056DCF202CE /* blueutil_arm64 */; };
+		A458D84A018CD19B8EAED224 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BFB150B39EEF1C747A5F7E4B /* Assets.xcassets */; };
+		AAEF9A528CF1D9934BF5FDFF /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D9AAA668078B250712B949 /* MenuBarView.swift */; };
+		C35636E40535DD04D690E4D4 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98EE369F9F7644B304DF1EC /* NetworkManager.swift */; };
+		FD62D46B31B6FCAE6D26D545 /* MagicBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */; };
+		FF5A8CB35D982D84F8E572AF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917BFBD41D2302A39121806E /* AppState.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicBridgeApp.swift; sourceTree = "<group>"; };
+		3FD6A4DF45AC9A05438389FC /* blueutil_amd64 */ = {isa = PBXFileReference; path = blueutil_amd64; sourceTree = "<group>"; };
+		4F6A982B61811335DC5739D4 /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
+		714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
+		84D9AAA668078B250712B949 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		8B7FF7F0A23BD056DCF202CE /* blueutil_arm64 */ = {isa = PBXFileReference; path = blueutil_arm64; sourceTree = "<group>"; };
+		917BFBD41D2302A39121806E /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
+		A98EE369F9F7644B304DF1EC /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
+		BFB150B39EEF1C747A5F7E4B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		D1455C4C5F7D238D3352A4EC /* MagicBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MagicBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1E5692A0F0B4DCA8B6368223 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				999E195D1304C1AE9DA47BDF /* Network.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		0EE14D9CD79BAAD41DC88720 = {
+			isa = PBXGroup;
+			children = (
+				F09E25B5F24CA8FBA6E3862C /* MagicBridge */,
+				452249B93A9C9E013A7207B0 /* Frameworks */,
+				8CEBD083BD4126889CC775C9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		452249B93A9C9E013A7207B0 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4F6A982B61811335DC5739D4 /* Network.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		8CEBD083BD4126889CC775C9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D1455C4C5F7D238D3352A4EC /* MagicBridge.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E006DA0252BB0C1030819B65 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3FD6A4DF45AC9A05438389FC /* blueutil_amd64 */,
+				8B7FF7F0A23BD056DCF202CE /* blueutil_arm64 */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		F09E25B5F24CA8FBA6E3862C /* MagicBridge */ = {
+			isa = PBXGroup;
+			children = (
+				917BFBD41D2302A39121806E /* AppState.swift */,
+				BFB150B39EEF1C747A5F7E4B /* Assets.xcassets */,
+				714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */,
+				09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */,
+				84D9AAA668078B250712B949 /* MenuBarView.swift */,
+				A98EE369F9F7644B304DF1EC /* NetworkManager.swift */,
+				E006DA0252BB0C1030819B65 /* Resources */,
+			);
+			path = MagicBridge;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		74E99C50F7E0DCAB462C1394 /* MagicBridge */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 54A8766C202A713E4DE0513F /* Build configuration list for PBXNativeTarget "MagicBridge" */;
+			buildPhases = (
+				09D077934E73CB4DD7DA5C6F /* Sources */,
+				9B8AB39E2FFEC06A894B4645 /* Resources */,
+				1E5692A0F0B4DCA8B6368223 /* Frameworks */,
+				119EC038E7A7ADDBFC6079AA /* Make blueutil executable */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = MagicBridge;
+			packageProductDependencies = (
+			);
+			productName = MagicBridge;
+			productReference = D1455C4C5F7D238D3352A4EC /* MagicBridge.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		720F3B40C4D2AB5B204AF0E4 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					74E99C50F7E0DCAB462C1394 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 42292E6FDD839302B1EC3EEE /* Build configuration list for PBXProject "MagicBridge" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 0EE14D9CD79BAAD41DC88720;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 8CEBD083BD4126889CC775C9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				74E99C50F7E0DCAB462C1394 /* MagicBridge */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		9B8AB39E2FFEC06A894B4645 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A458D84A018CD19B8EAED224 /* Assets.xcassets in Resources */,
+				98216252134208D90BF09892 /* blueutil_amd64 in Resources */,
+				A161A4CDBF0DB76CE1ABC04B /* blueutil_arm64 in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		119EC038E7A7ADDBFC6079AA /* Make blueutil executable */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Make blueutil executable";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "chmod +x \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/blueutil_arm64\"\nchmod +x \"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/blueutil_amd64\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		09D077934E73CB4DD7DA5C6F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FF5A8CB35D982D84F8E572AF /* AppState.swift in Sources */,
+				7FA3672794822C64A1CEBBA5 /* BluetoothManager.swift in Sources */,
+				FD62D46B31B6FCAE6D26D545 /* MagicBridgeApp.swift in Sources */,
+				AAEF9A528CF1D9934BF5FDFF /* MenuBarView.swift in Sources */,
+				C35636E40535DD04D690E4D4 /* NetworkManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		27C2414E1DA4E704EAD0F9A4 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MagicBridge/MagicBridge.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = MagicBridge/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ansarihamedani.magicbridge.app;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		9E3D194159E3DF0E7B84BBAE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		B70BC3B162AD3360F9F975A3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		D2497115C11626720B076480 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = MagicBridge/MagicBridge.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = NO;
+				INFOPLIST_FILE = MagicBridge/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ansarihamedani.magicbridge.app;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		42292E6FDD839302B1EC3EEE /* Build configuration list for PBXProject "MagicBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B70BC3B162AD3360F9F975A3 /* Debug */,
+				9E3D194159E3DF0E7B84BBAE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		54A8766C202A713E4DE0513F /* Build configuration list for PBXNativeTarget "MagicBridge" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				27C2414E1DA4E704EAD0F9A4 /* Debug */,
+				D2497115C11626720B076480 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 720F3B40C4D2AB5B204AF0E4 /* Project object */;
+}

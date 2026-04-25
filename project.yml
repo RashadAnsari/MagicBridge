@@ -1,0 +1,48 @@
+name: MagicBridge
+options:
+  bundleIdPrefix: com.magicbridge
+  deploymentTarget:
+    macOS: "13.0"
+  createIntermediateGroups: true
+  defaultConfig: Debug
+
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MACOSX_DEPLOYMENT_TARGET: "13.0"
+
+targets:
+  MagicBridge:
+    type: application
+    platform: macOS
+    sources:
+      - path: MagicBridge
+        excludes:
+          - Info.plist
+          - MagicBridge.entitlements
+          - "Resources/**"
+      - path: MagicBridge/Resources/blueutil_arm64
+        buildPhase: resources
+      - path: MagicBridge/Resources/blueutil_amd64
+        buildPhase: resources
+    info:
+      path: MagicBridge/Info.plist
+      properties:
+        LSUIElement: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: me.ansarihamedani.magicbridge.app
+        SWIFT_VERSION: "5.9"
+        MACOSX_DEPLOYMENT_TARGET: "13.0"
+        ENABLE_HARDENED_RUNTIME: NO
+        CODE_SIGN_STYLE: Automatic
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_ENTITLEMENTS: MagicBridge/MagicBridge.entitlements
+        ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES: YES
+    postBuildScripts:
+      - name: Make blueutil executable
+        script: |
+          chmod +x "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/blueutil_arm64"
+          chmod +x "${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/blueutil_amd64"
+    dependencies:
+      - sdk: Network.framework
