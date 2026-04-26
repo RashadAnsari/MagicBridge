@@ -13,8 +13,8 @@ private struct StoredMagicDevice: Codable {
 }
 
 struct Peer: Identifiable, Equatable {
-    let id: String  // unique instance UUID
-    let name: String  // display name (hostname)
+    let id: String  // Unique instance UUID
+    let name: String  // Display name (hostname)
 }
 
 class AppState: ObservableObject {
@@ -99,8 +99,6 @@ class AppState: ObservableObject {
                 ($0.id, MagicDevice(id: $0.id, name: $0.name, isConnected: false))
             })
     }
-
-    // MARK: - Launch at Login
 
     var launchAtLogin: Bool {
         SMAppService.mainApp.status == .enabled

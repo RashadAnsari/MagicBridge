@@ -105,14 +105,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupNetworkCallbacks() {
         network.appState = appState
 
-        // Peer asked us to release specific devices
         network.onReceiveRelease = { [weak self] deviceIDs, acknowledge in
             guard let self else { return }
-            self.appState.statusMessage = "Releasing for other Mac..."
+            self.appState.statusMessage = "Releasing devices for another MacBook..."
             let toRelease = self.appState.enabledDevices.filter { deviceIDs.contains($0.id) }
             self.bluetooth.releaseAll(devices: toRelease) { success in
                 self.appState.statusMessage =
-                    success ? "Released" : "Some devices failed to release"
+                    success ? "Devices released" : "Some devices could not be released"
                 self.refreshDevices()
                 acknowledge()
             }
@@ -121,7 +120,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     // MARK: - Actions
 
-    // Per-device connect button
     private func handleConnect(_ device: MagicDevice) {
         appState.isSwitching = true
         appState.statusMessage = "Connecting \(device.name)..."
@@ -144,7 +142,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             network.sendRelease(devices: [device]) { [weak self] confirmed in
                 guard let self else { return }
                 if !confirmed {
-                    self.appState.statusMessage = "Other Mac unreachable — connecting anyway..."
+                    self.appState.statusMessage =
+                        "Some MacBooks did not respond — connecting anyway..."
                 }
                 self.bluetooth.connect(device: device, completion: finish)
             }
@@ -153,7 +152,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // Per-device release button
     private func handleRelease(_ device: MagicDevice) {
         appState.statusMessage = "Releasing \(device.name)..."
         bluetooth.release(device: device) { [weak self] _ in
@@ -161,7 +159,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // "Switch selected to this Mac" button
     private func handleSwitchAll() {
         let targets = appState.enabledDevices
         guard !targets.isEmpty else { return }
@@ -187,7 +184,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             network.sendRelease(devices: targets) { [weak self] confirmed in
                 guard let self else { return }
                 if !confirmed {
-                    self.appState.statusMessage = "Other Mac unreachable — connecting anyway..."
+                    self.appState.statusMessage =
+                        "Some MacBooks did not respond — connecting anyway..."
                 }
                 self.bluetooth.connectAll(devices: targets, completion: finish)
             }
@@ -201,13 +199,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         guard !targets.isEmpty else { return }
 
         appState.isSwitching = true
-        appState.statusMessage = "Releasing selected..."
+        appState.statusMessage = "Releasing selected devices..."
 
         bluetooth.releaseAll(devices: targets) { [weak self] success in
             guard let self else { return }
             self.appState.isSwitching = false
             self.appState.statusMessage =
-                success ? "Released selected" : "Some selected devices failed to release"
+                success ? "Selected devices released" : "Some devices could not be released"
             self.refreshDevices()
         }
     }
@@ -219,7 +217,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             guard let self else { return }
             self.appState.setScannedDevices(devices)
             let anyHere = self.appState.devices.contains { $0.isConnected }
-            self.appState.statusMessage = anyHere ? "Devices on this Mac" : "Devices on other Mac"
+            self.appState.statusMessage =
+                anyHere ? "Devices on this MacBook" : "Devices on another MacBook"
             self.statusItem.button?.image = self.icon(active: anyHere)
         }
     }

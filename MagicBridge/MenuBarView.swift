@@ -98,7 +98,7 @@ struct MenuBarView: View {
                 if appState.isSwitching {
                     ProgressView().scaleEffect(0.7).progressViewStyle(.circular)
                 }
-                Text(appState.isSwitching ? "Switching..." : "Switch selected to this Mac")
+                Text(appState.isSwitching ? "Switching..." : "Switch selected to this MacBook")
                     .font(.system(size: 13, weight: .semibold))
             }
             .frame(maxWidth: .infinity)

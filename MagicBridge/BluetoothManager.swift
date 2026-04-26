@@ -9,6 +9,7 @@ enum ConnectError {
 class BluetoothManager: NSObject, CBCentralManagerDelegate {
     private let btQueue = DispatchQueue(label: "com.magicbridge.bluetooth", qos: .userInitiated)
     private var centralManager: CBCentralManager?
+    private var isScanInProgress = false
 
     func requestPermission() {
         centralManager = CBCentralManager(delegate: self, queue: .main)
@@ -35,8 +36,6 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         fatalError("blueutil not found")
     }
 
-    // MARK: - blueutil runner
-
     @discardableResult
     private func run(_ args: [String]) -> (output: String, success: Bool) {
         let proc = Process()
@@ -58,18 +57,19 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         return (out, proc.terminationStatus == 0)
     }
 
-    // MARK: - Public API
-
     func scanForMagicDevices(completion: @escaping ([MagicDevice]) -> Void) {
+        guard !isScanInProgress else { return }
+        isScanInProgress = true
         btQueue.async {
             let (output, ok) = self.run(["--paired"])
-            guard ok else {
-                DispatchQueue.main.async { completion([]) }
-                return
+            let devices =
+                ok
+                ? output.components(separatedBy: "\n").compactMap { self.parseLine($0) }
+                : []
+            DispatchQueue.main.async {
+                self.isScanInProgress = false
+                completion(devices)
             }
-
-            let devices = output.components(separatedBy: "\n").compactMap { self.parseLine($0) }
-            DispatchQueue.main.async { completion(devices) }
         }
     }
 
@@ -81,7 +81,6 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         }
     }
 
-    // Claim: pair then connect — exact port of MonkeySwitcher's main.command
     func connect(device: MagicDevice, completion: @escaping (ConnectError?) -> Void) {
         btQueue.async {
             let (_, paired) = self.run(["--pair", device.id])
@@ -123,11 +122,6 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
             }
             DispatchQueue.main.async { completion(firstError) }
         }
-    }
-
-    func isConnected(device: MagicDevice) -> Bool {
-        let (out, _) = run(["--is-connected", device.id])
-        return out == "1"
     }
 
     // MARK: - Parser
