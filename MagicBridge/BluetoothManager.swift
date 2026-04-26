@@ -7,7 +7,8 @@ enum ConnectError {
 }
 
 class BluetoothManager: NSObject, CBCentralManagerDelegate {
-    private let btQueue = DispatchQueue(label: "com.magicbridge.bluetooth", qos: .userInitiated)
+    private let btQueue = DispatchQueue(
+        label: "me.ansarihamedani.magicbridge.bluetooth", qos: .userInitiated)
     private var centralManager: CBCentralManager?
     private var isScanInProgress = false
 

@@ -1,6 +1,6 @@
 name: MagicBridge
 options:
-  bundleIdPrefix: com.magicbridge
+  bundleIdPrefix: me.ansarihamedani.magicbridge
   deploymentTarget:
     macOS: "13.0"
   createIntermediateGroups: true

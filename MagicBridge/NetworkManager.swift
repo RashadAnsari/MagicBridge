@@ -169,7 +169,7 @@ class NetworkManager: NSObject {
             port: NWEndpoint.Port(rawValue: UInt16(port))!)
         let conn = NWConnection(to: endpoint, using: .tcp)
         let queue = DispatchQueue.global(qos: .utility)
-        let finishQueue = DispatchQueue(label: "com.magicbridge.network.oneshot")
+        let finishQueue = DispatchQueue(label: "me.ansarihamedani.magicbridge.network.oneshot")
         var done = false
         let finish = {
             finishQueue.async {
@@ -236,7 +236,7 @@ class NetworkManager: NSObject {
             host: NWEndpoint.Host(host),
             port: NWEndpoint.Port(rawValue: UInt16(port))!)
         let conn = NWConnection(to: endpoint, using: .tcp)
-        let finishQueue = DispatchQueue(label: "com.magicbridge.network.finish")
+        let finishQueue = DispatchQueue(label: "me.ansarihamedani.magicbridge.network.finish")
         var done = false
         let finish = { (confirmed: Bool) in
             finishQueue.async {
