@@ -2,7 +2,7 @@
 
 A macOS menu bar application that enables **Magic Mouse**, **Magic Keyboard**, and **Magic Trackpad** multi-device switching between MacBooks using Apple's Multitouch protocol over Bluetooth.
 
-![MagicBridge Screenshot](docs/Screenshot.png)
+![MagicBridge Screenshot](docs/Screenshot.jpg)
 
 ## Features
 
