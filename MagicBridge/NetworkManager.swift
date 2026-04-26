@@ -97,24 +97,31 @@ class NetworkManager: NSObject {
 
     // MARK: - Send release to all peers
 
-    func sendRelease(devices: [MagicDevice], completion: @escaping () -> Void) {
+    func sendRelease(devices: [MagicDevice], completion: @escaping (_ allConfirmed: Bool) -> Void) {
         let targets = peerAddresses
         guard !targets.isEmpty else {
-            completion()
+            completion(true)
             return
         }
 
         let deviceIDs = devices.map { $0.id }
         let group = DispatchGroup()
+        var allConfirmed = true
+        let lock = NSLock()
         for (_, addr) in targets {
             group.enter()
-            sendReleaseTo(host: addr.host, port: addr.port, deviceIDs: deviceIDs) { group.leave() }
+            sendReleaseTo(host: addr.host, port: addr.port, deviceIDs: deviceIDs) { confirmed in
+                lock.lock()
+                if !confirmed { allConfirmed = false }
+                lock.unlock()
+                group.leave()
+            }
         }
-        group.notify(queue: .main) { completion() }
+        group.notify(queue: .main) { completion(allConfirmed) }
     }
 
     private func sendReleaseTo(
-        host: String, port: Int, deviceIDs: [String], completion: @escaping () -> Void
+        host: String, port: Int, deviceIDs: [String], completion: @escaping (Bool) -> Void
     ) {
         let endpoint = NWEndpoint.hostPort(
             host: NWEndpoint.Host(host),
@@ -122,16 +129,16 @@ class NetworkManager: NSObject {
         let conn = NWConnection(to: endpoint, using: .tcp)
         let finishQueue = DispatchQueue(label: "com.magicbridge.network.finish")
         var done = false
-        let finish = {
+        let finish = { (confirmed: Bool) in
             finishQueue.async {
                 guard !done else { return }
                 done = true
                 conn.cancel()
-                completion()
+                completion(confirmed)
             }
         }
 
-        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 5) { finish() }
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 5) { finish(false) }
         conn.stateUpdateHandler = { [weak self] state in
             switch state {
             case .ready:
@@ -140,8 +147,8 @@ class NetworkManager: NSObject {
                         "action": "release_devices", "sender": self?.instanceID ?? "",
                         "devices": deviceIDs,
                     ], on: conn)
-                self?.receive(on: conn, onDevicesReleased: finish)
-            case .failed: finish()
+                self?.receive(on: conn, onDevicesReleased: { finish(true) })
+            case .failed: finish(false)
             default: break
             }
         }

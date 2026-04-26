@@ -1,6 +1,11 @@
 import CoreBluetooth
 import Foundation
 
+enum ConnectError {
+    case pairFailed
+    case connectFailed
+}
+
 class BluetoothManager: NSObject, CBCentralManagerDelegate {
     private let btQueue = DispatchQueue(label: "com.magicbridge.bluetooth", qos: .userInitiated)
     private var centralManager: CBCentralManager?
@@ -77,12 +82,16 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
     }
 
     // Claim: pair then connect — exact port of MonkeySwitcher's main.command
-    func connect(device: MagicDevice, completion: @escaping (Bool) -> Void) {
+    func connect(device: MagicDevice, completion: @escaping (ConnectError?) -> Void) {
         btQueue.async {
-            self.run(["--pair", device.id])
+            let (_, paired) = self.run(["--pair", device.id])
+            guard paired else {
+                DispatchQueue.main.async { completion(.pairFailed) }
+                return
+            }
             Thread.sleep(forTimeInterval: 1.0)
-            let (_, ok) = self.run(["--connect", device.id])
-            DispatchQueue.main.async { completion(ok) }
+            let (_, connected) = self.run(["--connect", device.id])
+            DispatchQueue.main.async { completion(connected ? nil : .connectFailed) }
         }
     }
 
@@ -99,14 +108,20 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         }
     }
 
-    func connectAll(devices: [MagicDevice], completion: @escaping () -> Void) {
+    func connectAll(devices: [MagicDevice], completion: @escaping (ConnectError?) -> Void) {
         btQueue.async {
+            var firstError: ConnectError? = nil
             for d in devices {
-                self.run(["--pair", d.id])
+                let (_, paired) = self.run(["--pair", d.id])
+                if !paired {
+                    if firstError == nil { firstError = .pairFailed }
+                    continue
+                }
                 Thread.sleep(forTimeInterval: 1.0)
-                self.run(["--connect", d.id])
+                let (_, connected) = self.run(["--connect", d.id])
+                if !connected && firstError == nil { firstError = .connectFailed }
             }
-            DispatchQueue.main.async { completion() }
+            DispatchQueue.main.async { completion(firstError) }
         }
     }
 

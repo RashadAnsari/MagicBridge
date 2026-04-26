@@ -126,20 +126,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appState.isSwitching = true
         appState.statusMessage = "Connecting \(device.name)..."
 
-        if appState.peerConnected {
-            network.sendRelease(devices: [device]) { [weak self] in
-                guard let self else { return }
-                self.bluetooth.connect(device: device) { _ in
-                    self.appState.isSwitching = false
-                    self.refreshDevices()
-                }
-            }
-        } else {
-            bluetooth.connect(device: device) { [weak self] _ in
-                guard let self else { return }
-                self.appState.isSwitching = false
+        let finish = { [weak self] (error: ConnectError?) in
+            guard let self else { return }
+            self.appState.isSwitching = false
+            switch error {
+            case .pairFailed:
+                self.appState.statusMessage =
+                    "Hold the device's button to enter pairing mode, then try again."
+            case .connectFailed:
+                self.appState.statusMessage = "Failed to connect. Try again."
+            case nil:
                 self.refreshDevices()
             }
+        }
+
+        if appState.peerConnected {
+            network.sendRelease(devices: [device]) { [weak self] confirmed in
+                guard let self else { return }
+                if !confirmed {
+                    self.appState.statusMessage = "Other Mac unreachable — connecting anyway..."
+                }
+                self.bluetooth.connect(device: device, completion: finish)
+            }
+        } else {
+            bluetooth.connect(device: device, completion: finish)
         }
     }
 
@@ -159,20 +169,30 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         appState.isSwitching = true
         appState.statusMessage = "Switching..."
 
-        if appState.peerConnected {
-            network.sendRelease(devices: targets) { [weak self] in
-                guard let self else { return }
-                self.bluetooth.connectAll(devices: targets) {
-                    self.appState.isSwitching = false
-                    self.refreshDevices()
-                }
-            }
-        } else {
-            bluetooth.connectAll(devices: targets) { [weak self] in
-                guard let self else { return }
-                self.appState.isSwitching = false
+        let finish = { [weak self] (error: ConnectError?) in
+            guard let self else { return }
+            self.appState.isSwitching = false
+            switch error {
+            case .pairFailed:
+                self.appState.statusMessage =
+                    "Hold the device's button to enter pairing mode, then try again."
+            case .connectFailed:
+                self.appState.statusMessage = "Failed to connect. Try again."
+            case nil:
                 self.refreshDevices()
             }
+        }
+
+        if appState.peerConnected {
+            network.sendRelease(devices: targets) { [weak self] confirmed in
+                guard let self else { return }
+                if !confirmed {
+                    self.appState.statusMessage = "Other Mac unreachable — connecting anyway..."
+                }
+                self.bluetooth.connectAll(devices: targets, completion: finish)
+            }
+        } else {
+            bluetooth.connectAll(devices: targets, completion: finish)
         }
     }
 
