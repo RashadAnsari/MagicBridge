@@ -1,35 +1,40 @@
 # MagicBridge
 
-A macOS menu bar application that enables **Magic Mouse**, **Magic Keyboard**, and **Magic Trackpad** multi-device switching between MacBooks using Apple's Multitouch protocol over Bluetooth.
+A macOS menu bar app that lets you **share a Magic Trackpad, Magic Mouse, or Magic Keyboard across multiple MacBooks** — one click and the device switches to whichever Mac you're sitting at.
 
 ![MagicBridge Screenshot](docs/Screenshot.jpg)
 
 ## Features
 
-- **Menu Bar App** - Runs silently in the menu bar, no dock icon
-- **Auto-Discovery** - Automatically finds other MacBooks on the local network via mDNS/Bonjour
-- **One-Click Connect** - Connect to Magic devices with a single click
-- **Device Management** - Enable/disable individual devices (persisted in UserDefaults)
-- **Switch All** - Connect to all enabled devices (requests other MacBooks to release first)
-- **Release All** - Disconnect all devices connected to this Mac
+- **Menu Bar App** — Runs silently in the menu bar, no dock icon
+- **Auto-Discovery** — Finds other MacBooks running MagicBridge on your local network via mDNS/Bonjour, with a hello heartbeat protocol to stay in sync after sleep or network changes
+- **One-Click Handoff** — Connect to any device with a single click; MagicBridge automatically asks the other Mac to release it first
+- **Graceful Fallback** — If a peer doesn't respond in time, MagicBridge connects anyway and tells you
+- **Switch All** — Move every enabled device to this Mac in one action
+- **Release All** — Disconnect all devices from this Mac so another can pick them up
+- **Per-Device Enable/Disable** — Toggle individual devices on or off; your choices are remembered across restarts
+- **Launch at Login** — Optional auto-start so your devices are always ready when you log in
+- **Actionable Errors** — When pairing fails, MagicBridge tells you exactly what to do (e.g. hold the device's pairing button)
+- **Universal Binary** — Ships bundled `blueutil` for both Apple Silicon (arm64) and Intel (x86_64)
 
 ## How It Works
 
-MagicBridge enables sharing Magic devices across multiple MacBooks:
+Each Mac running MagicBridge does five things simultaneously:
 
-1. **Bluetooth Discovery** - Uses `blueutil` to scan for paired Magic devices (Trackpad, Mouse, Keyboard)
-2. **Device Connection** - Pairs and connects to the selected device via Bluetooth HID
-3. **Peer Discovery** - Discovers other MacBooks running MagicBridge via mDNS/Bonjour on port 57842
-4. **Device Handoff** - When you connect to a device while another Mac has devices connected, it requests that Mac to release first, then connects locally
+1. **Bluetooth scanning** — Polls paired Magic devices (Trackpad, Mouse, Keyboard) every 3 seconds using a bundled `blueutil` binary
+2. **mDNS advertising** — Publishes a `_magicbridge._tcp` Bonjour record so other Macs can find it
+3. **Hello heartbeats** — Sends a `hello` message to each known peer every 15 seconds (and immediately on wake from sleep), so peers are evicted within 45 seconds if they go offline
+4. **Release protocol** — When you click Connect or Switch All, MagicBridge sends a `release_devices` message over TCP (port 57842) to every peer; the peer unpairs the devices and replies `devices_released` before the local Mac pairs and connects
+5. **Device persistence** — Enabled devices are stored in UserDefaults so the list survives app restarts even when devices are off or out of range
 
-The menu bar icon reflects whether devices are connected to **this Mac** (active) or to **another Mac** (inactive).
+The menu bar icon reflects whether any enabled devices are connected to **this Mac**.
 
 ## Requirements
 
 - macOS 13.0 or later
 - Bluetooth-enabled Mac
 - Magic Trackpad, Magic Mouse, or Magic Keyboard (1st or 2nd generation)
-- `blueutil` (included in app bundle)
+- `blueutil` — bundled inside the app (no separate install needed)
 
 ## Installation
 
@@ -37,37 +42,41 @@ The menu bar icon reflects whether devices are connected to **this Mac** (active
 2. Unzip and drag `MagicBridge.app` to your **Applications** folder
 3. Launch it from Applications
 
-> **First launch only:** macOS will block the app because it is not from the App Store.
+> **First launch only:** macOS will block the app because it is not notarized.
 > Open **System Settings → Privacy & Security**, scroll down, and click **Open Anyway**.
 > You will also be prompted to grant Bluetooth access — click **Allow**.
 
-The app appears in the menu bar with no dock icon.
+On first launch you'll be asked whether to enable **Launch at Login**. You can change this later by quitting and relaunching the app.
 
 ## Building from Source
 
 ### Prerequisites
 
 - Xcode 15+
-- XcodeGen (install via `brew install xcodegen`)
+- XcodeGen (`brew install xcodegen`)
 
 ### Build
 
 ```bash
-# Debug build
-make build
+# Install dependencies (xcodegen)
+make deps
 
-# Release build
+# Build and install directly to /Applications (no code signing required)
+make install
+
+# Release build — produces MagicBridge.app and MagicBridge.zip (requires a code signing identity)
 make release
 ```
 
-The built app will be in `MagicBridge.app`
+`make install` builds a debug binary, copies it to `/Applications/MagicBridge.app`, strips quarantine, and launches it immediately. `make release` produces a signed `MagicBridge.app` and `MagicBridge.zip` in the project root.
 
 ## Usage
 
 1. Click the menu bar icon to open the popover
-2. **Other MacBooks** - Shows other MacBooks running MagicBridge on your network (discovered via mDNS)
-3. **Devices** - Lists available Magic Trackpads/Mice/Keyboards
-   - Click the toggle to enable/disable a device
-   - Click the connect button to connect (if another Mac has devices, it will request release first)
-4. **Switch All** - Connect to all enabled devices
-5. **Release All** - Disconnect all devices connected to this Mac
+2. **Other MacBooks** — Shows peers discovered on your network (green dot = reachable)
+3. **Devices** — Lists all paired Magic devices
+   - Click the circle to enable/disable a device (persisted across restarts)
+   - Click **Connect** to claim the device on this Mac (peers are asked to release first)
+   - Click **Release** to disconnect the device so another Mac can pick it up
+4. **Switch selected to this MacBook** — Claim all enabled devices at once
+5. **Release all selected** — Release all currently-connected enabled devices
