@@ -37,7 +37,7 @@ release: deps
 		CODE_SIGN_STYLE=Manual \
 		CODE_SIGN_IDENTITY="$(SIGN_IDENTITY)" \
 		CODE_SIGN_ENTITLEMENTS=MagicBridge/MagicBridge.entitlements \
-		ENABLE_HARDENED_RUNTIME=NO
+		ENABLE_HARDENED_RUNTIME=YES
 	@RELEASE_DIR=$$(find $(DERIVED_DATA) -name "$(APP_NAME).app" -path "*/Release/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null) && \
 	APP_PATH="$$RELEASE_DIR/$(APP_NAME).app" && \
 	if [ -d "$$APP_PATH" ]; then \

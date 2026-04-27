@@ -58,13 +58,13 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
-            button.image = icon(active: false)
+            button.image = icon()
             button.action = #selector(togglePopover)
             button.target = self
         }
     }
 
-    private func icon(active: Bool) -> NSImage? {
+    private func icon() -> NSImage? {
         if let img = NSImage(named: NSImage.Name("AppIcon")) {
             img.isTemplate = true
             img.size = NSSize(width: 16, height: 16)
@@ -127,13 +127,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let finish = { [weak self] (error: ConnectError?) in
             guard let self else { return }
             self.appState.isSwitching = false
-            switch error {
-            case .pairFailed:
-                self.appState.statusMessage =
-                    "Hold the device's button to enter pairing mode, then try again."
-            case .connectFailed:
+            if error != nil {
                 self.appState.statusMessage = "Failed to connect. Try again."
-            case nil:
+            } else {
                 self.refreshDevices()
             }
         }
@@ -169,13 +165,9 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let finish = { [weak self] (error: ConnectError?) in
             guard let self else { return }
             self.appState.isSwitching = false
-            switch error {
-            case .pairFailed:
-                self.appState.statusMessage =
-                    "Hold the device's button to enter pairing mode, then try again."
-            case .connectFailed:
+            if error != nil {
                 self.appState.statusMessage = "Failed to connect. Try again."
-            case nil:
+            } else {
                 self.refreshDevices()
             }
         }
@@ -219,7 +211,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             let anyHere = self.appState.devices.contains { $0.isConnected }
             self.appState.statusMessage =
                 anyHere ? "Devices on this MacBook" : "Devices on another MacBook"
-            self.statusItem.button?.image = self.icon(active: anyHere)
+            self.statusItem.button?.image = self.icon()
         }
     }
 

@@ -1,8 +1,8 @@
 import CoreBluetooth
 import Foundation
+import IOBluetooth
 
 enum ConnectError {
-    case pairFailed
     case connectFailed
 }
 
@@ -10,147 +10,85 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
     private let btQueue = DispatchQueue(
         label: "me.ansarihamedani.magicbridge.bluetooth", qos: .userInitiated)
     private var centralManager: CBCentralManager?
-    private var isScanInProgress = false
 
     func requestPermission() {
         centralManager = CBCentralManager(delegate: self, queue: .main)
     }
 
-    func centralManagerDidUpdateState(_ central: CBCentralManager) {
-        // Permission resolved — blueutil subprocess inherits access
-    }
-
-    private var blueutilURL: URL {
-        #if arch(arm64)
-            let name = "blueutil_arm64"
-        #else
-            let name = "blueutil_amd64"
-        #endif
-        if let url = Bundle.main.url(forResource: name, withExtension: nil) {
-            return url
-        }
-        for path in ["/opt/homebrew/bin/blueutil", "/usr/local/bin/blueutil"] {
-            if FileManager.default.isExecutableFile(atPath: path) {
-                return URL(fileURLWithPath: path)
-            }
-        }
-        fatalError("blueutil not found")
-    }
-
-    @discardableResult
-    private func run(_ args: [String]) -> (output: String, success: Bool) {
-        let proc = Process()
-        proc.executableURL = blueutilURL
-        proc.arguments = args
-        let pipe = Pipe()
-        proc.standardOutput = pipe
-        proc.standardError = Pipe()
-        do {
-            try proc.run()
-            proc.waitUntilExit()
-        } catch {
-            print("[BT] Error: \(error)")
-            return ("", false)
-        }
-        let out =
-            String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8)?
-            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-        return (out, proc.terminationStatus == 0)
-    }
+    func centralManagerDidUpdateState(_ central: CBCentralManager) {}
 
     func scanForMagicDevices(completion: @escaping ([MagicDevice]) -> Void) {
-        guard !isScanInProgress else { return }
-        isScanInProgress = true
         btQueue.async {
-            let (output, ok) = self.run(["--paired"])
-            let devices =
-                ok
-                ? output.components(separatedBy: "\n").compactMap { self.parseLine($0) }
-                : []
-            DispatchQueue.main.async {
-                self.isScanInProgress = false
-                completion(devices)
-            }
-        }
-    }
-
-    // Release: unpair locally, but keep the device in app state so it can be claimed again later.
-    func release(device: MagicDevice, completion: @escaping (Bool) -> Void) {
-        btQueue.async {
-            let (_, ok) = self.run(["--unpair", device.id])
-            DispatchQueue.main.async { completion(ok) }
+            let devices = (IOBluetoothDevice.pairedDevices() as? [IOBluetoothDevice] ?? [])
+                .filter { self.isMagicDevice($0) }
+                .map { btDevice -> MagicDevice in
+                    MagicDevice(
+                        id: btDevice.addressString,
+                        name: btDevice.name ?? btDevice.nameOrAddress ?? "Magic Device",
+                        isConnected: btDevice.isConnected()
+                    )
+                }
+            DispatchQueue.main.async { completion(devices) }
         }
     }
 
     func connect(device: MagicDevice, completion: @escaping (ConnectError?) -> Void) {
         btQueue.async {
-            let (_, paired) = self.run(["--pair", device.id])
-            guard paired else {
-                DispatchQueue.main.async { completion(.pairFailed) }
+            guard let btDevice = IOBluetoothDevice(addressString: device.id) else {
+                DispatchQueue.main.async { completion(.connectFailed) }
                 return
             }
-            Thread.sleep(forTimeInterval: 1.0)
-            let (_, connected) = self.run(["--connect", device.id])
-            DispatchQueue.main.async { completion(connected ? nil : .connectFailed) }
+            let result = btDevice.openConnection()
+            DispatchQueue.main.async {
+                completion(result == kIOReturnSuccess ? nil : .connectFailed)
+            }
+        }
+    }
+
+    func release(device: MagicDevice, completion: @escaping (Bool) -> Void) {
+        btQueue.async {
+            let success = self.unpair(device.id)
+            DispatchQueue.main.async { completion(success) }
         }
     }
 
     func releaseAll(devices: [MagicDevice], completion: @escaping (Bool) -> Void) {
         btQueue.async {
-            var allSucceeded = true
-
-            for d in devices {
-                let (_, ok) = self.run(["--unpair", d.id])
-                allSucceeded = allSucceeded && ok
-            }
-
-            DispatchQueue.main.async { completion(allSucceeded) }
+            let success = devices.allSatisfy { self.unpair($0.id) }
+            DispatchQueue.main.async { completion(success) }
         }
     }
 
     func connectAll(devices: [MagicDevice], completion: @escaping (ConnectError?) -> Void) {
         btQueue.async {
-            var firstError: ConnectError? = nil
-            for d in devices {
-                let (_, paired) = self.run(["--pair", d.id])
-                if !paired {
-                    if firstError == nil { firstError = .pairFailed }
+            var firstError: ConnectError?
+            for device in devices {
+                guard let btDevice = IOBluetoothDevice(addressString: device.id) else {
+                    if firstError == nil { firstError = .connectFailed }
                     continue
                 }
+                let result = btDevice.openConnection()
+                if result != kIOReturnSuccess && firstError == nil { firstError = .connectFailed }
                 Thread.sleep(forTimeInterval: 1.0)
-                let (_, connected) = self.run(["--connect", d.id])
-                if !connected && firstError == nil { firstError = .connectFailed }
             }
             DispatchQueue.main.async { completion(firstError) }
         }
     }
 
-    // MARK: - Parser
-    // Format: address: xx-xx-xx-xx-xx-xx, connected (...) | not connected, ..., name: "Device Name", ...
+    // MARK: - Private
 
-    private func parseLine(_ line: String) -> MagicDevice? {
-        guard
-            line.contains("Magic Mouse")
-                || line.contains("Magic Keyboard")
-                || line.contains("Magic Trackpad")
-        else { return nil }
+    private func unpair(_ address: String) -> Bool {
+        guard let device = IOBluetoothDevice(addressString: address) else { return false }
+        let sel = NSSelectorFromString("remove")
+        guard device.responds(to: sel) else { return false }
+        device.perform(sel)
+        return true
+    }
 
-        guard
-            let addrRange = line.range(
-                of: #"([0-9a-f]{2}-){5}[0-9a-f]{2}"#, options: .regularExpression)
-        else {
-            return nil
-        }
-        let address = String(line[addrRange])
-
-        var name = "Magic Device"
-        if let nameRange = line.range(of: #"name: "([^"]+)""#, options: .regularExpression) {
-            name = String(line[nameRange])
-                .replacingOccurrences(of: "name: \"", with: "")
-                .replacingOccurrences(of: "\"", with: "")
-        }
-
-        let isConnected = !line.contains("not connected") && line.contains("connected")
-        return MagicDevice(id: address, name: name, isConnected: isConnected)
+    private func isMagicDevice(_ device: IOBluetoothDevice) -> Bool {
+        let name = device.name ?? device.nameOrAddress ?? ""
+        return name.contains("Magic Mouse")
+            || name.contains("Magic Keyboard")
+            || name.contains("Magic Trackpad")
     }
 }
