@@ -2,7 +2,7 @@ import Foundation
 import ServiceManagement
 
 struct MagicDevice: Identifiable, Equatable {
-    let id: String  // Bluetooth address (xx-xx-xx-xx-xx-xx)
+    let id: String
     let name: String
     var isConnected: Bool
 }
@@ -13,8 +13,8 @@ private struct StoredMagicDevice: Codable {
 }
 
 struct Peer: Identifiable, Equatable {
-    let id: String  // Unique instance UUID
-    let name: String  // Display name (hostname)
+    let id: String
+    let name: String
 }
 
 class AppState: ObservableObject {

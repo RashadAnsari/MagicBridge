@@ -3,6 +3,7 @@ import Foundation
 import IOBluetooth
 
 enum ConnectError {
+    case pairFailed
     case connectFailed
 }
 
@@ -77,14 +78,8 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
 
     func connect(device: MagicDevice, completion: @escaping (ConnectError?) -> Void) {
         btQueue.async {
-            guard let btDevice = IOBluetoothDevice(addressString: device.id) else {
-                DispatchQueue.main.async { completion(.connectFailed) }
-                return
-            }
-            let result = btDevice.openConnection()
-            DispatchQueue.main.async {
-                completion(result == kIOReturnSuccess ? nil : .connectFailed)
-            }
+            let error = self.connectSync(address: device.id)
+            DispatchQueue.main.async { completion(error) }
         }
     }
 
@@ -106,19 +101,52 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         btQueue.async {
             var firstError: ConnectError?
             for device in devices {
-                guard let btDevice = IOBluetoothDevice(addressString: device.id) else {
-                    if firstError == nil { firstError = .connectFailed }
-                    continue
-                }
-                let result = btDevice.openConnection()
-                if result != kIOReturnSuccess && firstError == nil { firstError = .connectFailed }
-                Thread.sleep(forTimeInterval: 1.0)
+                let error = self.connectSync(address: device.id)
+                if error != nil && firstError == nil { firstError = error }
             }
             DispatchQueue.main.async { completion(firstError) }
         }
     }
 
-    // MARK: - Private
+    private func connectSync(address: String) -> ConnectError? {
+        guard let device = IOBluetoothDevice(addressString: address) else {
+            return .connectFailed
+        }
+
+        // After a remote `remove`, the device resets its pairing and Mac B sees
+        // isPaired() as false. Route through IOBluetoothDevicePair so our delegate
+        // auto-confirms the SSP request before macOS can show the system dialog.
+        // If still paired (device was just disconnected), openConnection() directly.
+        if device.isPaired() {
+            let result = device.openConnection()
+            return result == kIOReturnSuccess ? nil : .connectFailed
+        }
+
+        guard pairWithDeviceSync(device) else { return .pairFailed }
+        return device.openConnection() == kIOReturnSuccess ? nil : .connectFailed
+    }
+
+    private func pairWithDeviceSync(_ device: IOBluetoothDevice) -> Bool {
+        let semaphore = DispatchSemaphore(value: 0)
+        var succeeded = false
+
+        DispatchQueue.main.async {
+            guard let pairer = IOBluetoothDevicePair(device: device) else {
+                semaphore.signal()
+                return
+            }
+            let delegate = PairDelegate { result in
+                succeeded = result
+                semaphore.signal()
+            }
+            pairer.delegate = delegate
+            // Retain delegate for the pairing lifetime; IOBluetoothDevicePair holds it weakly
+            objc_setAssociatedObject(pairer, "pairDelegate", delegate, .OBJC_ASSOCIATION_RETAIN)
+            pairer.start()
+        }
+
+        return semaphore.wait(timeout: .now() + 10) == .success && succeeded
+    }
 
     private func unpair(_ address: String) -> Bool {
         guard let device = IOBluetoothDevice(addressString: address) else { return false }
@@ -136,5 +164,31 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         name.contains("Magic Mouse")
             || name.contains("Magic Keyboard")
             || name.contains("Magic Trackpad")
+    }
+}
+
+private class PairDelegate: NSObject, IOBluetoothDevicePairDelegate {
+    private let onFinished: (Bool) -> Void
+
+    init(onFinished: @escaping (Bool) -> Void) {
+        self.onFinished = onFinished
+        super.init()
+    }
+
+    func devicePairingUserConfirmationRequest(
+        _ sender: Any!, numericValue: BluetoothNumericValue
+    ) {
+        // Auto-confirm SSP numeric comparison — this is what suppresses the system dialog
+        (sender as? IOBluetoothDevicePair)?.replyUserConfirmation(true)
+    }
+
+    func devicePairingPINCodeRequest(_ sender: Any!) {
+        // Magic devices don't use PINs; reply with empty code as a safety fallback
+        var pin = BluetoothPINCode()
+        (sender as? IOBluetoothDevicePair)?.replyPINCode(0, pinCode: &pin)
+    }
+
+    func devicePairingFinished(_ sender: Any!, error: IOReturn) {
+        onFinished(error == kIOReturnSuccess)
     }
 }

@@ -75,8 +75,6 @@ class NetworkManager: NSObject {
         browser?.stop()
     }
 
-    // MARK: - TCP Listener
-
     private func startTCPListener() {
         do {
             listener = try NWListener(
@@ -99,8 +97,6 @@ class NetworkManager: NSObject {
         conn.start(queue: .global(qos: .utility))
     }
 
-    // MARK: - mDNS Advertising
-
     private func startMDNSAdvertising() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -118,8 +114,6 @@ class NetworkManager: NSObject {
         }
     }
 
-    // MARK: - mDNS Browsing
-
     private func startMDNSBrowsing() {
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
@@ -129,8 +123,6 @@ class NetworkManager: NSObject {
             self.browser?.searchForServices(ofType: self.serviceType, inDomain: "local.")
         }
     }
-
-    // MARK: - Heartbeat timers
 
     private func startHelloTimer() {
         let timer = DispatchSource.makeTimerSource(queue: .global(qos: .utility))
@@ -151,8 +143,6 @@ class NetworkManager: NSObject {
         timer.resume()
         sweepTimer = timer
     }
-
-    // MARK: - Sending hellos
 
     private func sendHelloToAllPeers() {
         for (_, addr) in peerAddresses {
@@ -201,8 +191,6 @@ class NetworkManager: NSObject {
         conn.start(queue: queue)
     }
 
-    // MARK: - Sweep / eviction
-
     private func evictStalePeers() {
         let cutoff = Date().addingTimeInterval(-helloTTLSeconds)
         let staleIDs = peerLastHello.compactMap { (id, lastSeen) -> String? in
@@ -215,8 +203,6 @@ class NetworkManager: NSObject {
             appState?.peers.removeAll { $0.id == id }
         }
     }
-
-    // MARK: - Send release to all peers
 
     func sendRelease(devices: [MagicDevice], completion: @escaping (_ allConfirmed: Bool) -> Void) {
         let targets = peerAddresses
@@ -281,8 +267,6 @@ class NetworkManager: NSObject {
         }
         conn.start(queue: .global(qos: .utility))
     }
-
-    // MARK: - Messaging
 
     private func frame(_ data: Data) -> Data {
         var length = UInt32(data.count).bigEndian
@@ -353,8 +337,6 @@ class NetworkManager: NSObject {
     }
 }
 
-// MARK: - NetServiceBrowserDelegate
-
 extension NetworkManager: NetServiceBrowserDelegate {
     func netServiceBrowser(
         _ browser: NetServiceBrowser, didFind service: NetService, moreComing: Bool
@@ -388,8 +370,6 @@ extension NetworkManager: NetServiceBrowserDelegate {
         }
     }
 }
-
-// MARK: - NetServiceDelegate
 
 extension NetworkManager: NetServiceDelegate {
     func netServiceDidResolveAddress(_ sender: NetService) {

@@ -24,8 +24,8 @@ targets:
     info:
       path: MagicBridge/Info.plist
       properties:
-        CFBundleShortVersionString: "1.0.7"
-        CFBundleVersion: "8"
+        CFBundleShortVersionString: "1.0.8"
+        CFBundleVersion: "9"
         LSUIElement: true
         NSBluetoothAlwaysUsageDescription: "MagicBridge needs Bluetooth access to detect and switch your Magic devices between Macs."
     settings:

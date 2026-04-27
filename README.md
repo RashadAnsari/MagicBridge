@@ -14,27 +14,24 @@ A macOS menu bar app that lets you **share a Magic Trackpad, Magic Mouse, or Mag
 - **Release All** — Disconnect all devices from this Mac so another can pick them up
 - **Per-Device Enable/Disable** — Toggle individual devices on or off; your choices are remembered across restarts
 - **Launch at Login** — Optional auto-start so your devices are always ready when you log in
-- **Actionable Errors** — When pairing fails, MagicBridge tells you exactly what to do (e.g. hold the device's pairing button)
-- **Universal Binary** — Ships bundled `blueutil` for both Apple Silicon (arm64) and Intel (x86_64)
+- **No System Dialog** — Device switching happens silently with no Bluetooth confirmation prompts
 
 ## How It Works
 
 Each Mac running MagicBridge does five things simultaneously:
 
-1. **Bluetooth scanning** — Polls paired Magic devices (Trackpad, Mouse, Keyboard) every 3 seconds using a bundled `blueutil` binary
+1. **Bluetooth monitoring** — Listens for IOBluetooth connect/disconnect events for instant UI updates; a 60-second safety poll catches anything missed
 2. **mDNS advertising** — Publishes a `_magicbridge._tcp` Bonjour record so other Macs can find it
-3. **Hello heartbeats** — Sends a `hello` message to each known peer every 15 seconds (and immediately on wake from sleep), so peers are evicted within 45 seconds if they go offline
-4. **Release protocol** — When you click Connect or Switch All, MagicBridge sends a `release_devices` message over TCP (port 57842) to every peer; the peer unpairs the devices and replies `devices_released` before the local Mac pairs and connects
-5. **Device persistence** — Enabled devices are stored in UserDefaults so the list survives app restarts even when devices are off or out of range
-
-The menu bar icon reflects whether any enabled devices are connected to **this Mac**.
+3. **Hello heartbeats** — Sends a `hello` message to each known peer every 15 seconds (and immediately on wake from sleep); peers are evicted within 45 seconds if they go offline
+4. **Release protocol** — When you click Connect or Switch All, MagicBridge sends a `release_devices` message over TCP (port 57842) to every peer; the peer disconnects the devices and replies `devices_released` before the local Mac connects
+5. **Silent pairing** — After a device is released, MagicBridge uses `IOBluetoothDevicePair` with an auto-confirming delegate to re-establish the connection without showing any system dialog
+6. **Device persistence** — Enabled devices are stored in UserDefaults so the list survives app restarts even when devices are off or out of range
 
 ## Requirements
 
 - macOS 13.0 or later
-- Bluetooth-enabled Mac
-- Magic Trackpad, Magic Mouse, or Magic Keyboard (1st or 2nd generation)
-- `blueutil` — bundled inside the app (no separate install needed)
+- Two or more Bluetooth-enabled Macs on the same local network
+- Magic Trackpad, Magic Mouse, or Magic Keyboard
 
 ## Installation
 

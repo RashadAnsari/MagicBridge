@@ -55,8 +55,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         network.stop()
     }
 
-    // MARK: - Status Item
-
     private func setupStatusItem() {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
@@ -74,8 +72,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
         return nil
     }
-
-    // MARK: - Popover
 
     private func setupPopover() {
         popover = NSPopover()
@@ -106,8 +102,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    // MARK: - Network callbacks
-
     private func setupNetworkCallbacks() {
         network.appState = appState
 
@@ -123,8 +117,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             }
         }
     }
-
-    // MARK: - Actions
 
     private func handleConnect(_ device: MagicDevice) {
         appState.statusMessage = "Connecting \(device.name)..."
@@ -197,8 +189,6 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             self.refreshDevices()
         }
     }
-
-    // MARK: - Device refresh
 
     private func refreshDevices() {
         bluetooth.scanForMagicDevices { [weak self] devices in

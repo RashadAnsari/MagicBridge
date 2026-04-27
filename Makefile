@@ -4,7 +4,7 @@ DERIVED_DATA = $(HOME)/Library/Developer/Xcode/DerivedData
 BUILD_DIR = $(shell find $(DERIVED_DATA) -name "$(APP_NAME).app" -path "*/Debug/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
 SIGN_IDENTITY ?= $(shell security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Developer ID Application/{print $$2; exit} /Apple Development/{print $$2; exit}')
 
-.PHONY: deps build release install uninstall clean format lint
+.PHONY: deps install uninstall clean release test format lint
 
 deps:
 	@which xcodegen > /dev/null || brew install xcodegen
@@ -52,6 +52,13 @@ release: deps
 		echo "Release build not found"; \
 		exit 1; \
 	fi
+
+test:
+	xcodegen generate
+	xcodebuild -scheme $(APP_NAME) -configuration Debug test \
+		-destination 'platform=macOS' \
+		CODE_SIGNING_ALLOWED=NO \
+		CODE_SIGNING_REQUIRED=NO
 
 format:
 	xcrun swift-format format --in-place --recursive $(APP_NAME)

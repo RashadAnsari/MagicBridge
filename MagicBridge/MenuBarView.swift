@@ -25,8 +25,6 @@ struct MenuBarView: View {
         .frame(width: 300)
     }
 
-    // MARK: - Sections
-
     private var header: some View {
         HStack(alignment: .firstTextBaseline, spacing: 6) {
             Text("MagicBridge")
@@ -134,8 +132,6 @@ struct MenuBarView: View {
             .frame(maxWidth: .infinity, alignment: .center)
     }
 }
-
-// MARK: - Device Row
 
 private struct DeviceRow: View {
     let device: MagicDevice
