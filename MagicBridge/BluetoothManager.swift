@@ -161,9 +161,9 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
     }
 
     func isMagicDeviceName(_ name: String) -> Bool {
-        name.contains("Magic Mouse")
-            || name.contains("Magic Keyboard")
-            || name.contains("Magic Trackpad")
+        name.localizedCaseInsensitiveContains("Magic Mouse")
+            || name.localizedCaseInsensitiveContains("Magic Keyboard")
+            || name.localizedCaseInsensitiveContains("Magic Trackpad")
     }
 }
 

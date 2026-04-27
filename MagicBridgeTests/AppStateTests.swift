@@ -12,8 +12,6 @@ class AppStateTests: XCTestCase {
         appState = AppState()
     }
 
-    // MARK: - toggleEnabled
-
     func testToggleEnabledAddsDevice() {
         let device = MagicDevice(id: "aa-bb-cc-dd-ee-ff", name: "Magic Mouse", isConnected: true)
         appState.toggleEnabled(device)
@@ -35,8 +33,6 @@ class AppStateTests: XCTestCase {
         XCTAssertTrue(appState.isEnabled(mouse))
         XCTAssertFalse(appState.isEnabled(keyboard))
     }
-
-    // MARK: - setScannedDevices / device merging
 
     func testScannedDevicesAreVisible() {
         let device = MagicDevice(id: "aa-bb-cc-dd-ee-ff", name: "Magic Mouse", isConnected: true)
@@ -68,8 +64,6 @@ class AppStateTests: XCTestCase {
         appState.setScannedDevices([])
         XCTAssertTrue(appState.devices.isEmpty)
     }
-
-    // MARK: - enabledDevices
 
     func testEnabledDevicesOnlyReturnsEnabledOnes() {
         let mouse = MagicDevice(id: "aa-bb-cc-dd-ee-ff", name: "Magic Mouse", isConnected: true)

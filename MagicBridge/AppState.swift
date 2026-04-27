@@ -1,5 +1,8 @@
 import Foundation
+import OSLog
 import ServiceManagement
+
+private let logger = Logger(subsystem: "me.ansarihamedani.magicbridge", category: "appstate")
 
 struct MagicDevice: Identifiable, Equatable {
     let id: String
@@ -113,7 +116,7 @@ class AppState: ObservableObject {
             }
             objectWillChange.send()
         } catch {
-            // ignore registration errors silently
+            logger.error("Launch-at-login \(enabled ? "register" : "unregister") failed: \(error)")
         }
     }
 

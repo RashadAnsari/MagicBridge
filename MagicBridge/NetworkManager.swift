@@ -92,9 +92,14 @@ class NetworkManager: NSObject {
 
     private func handleIncoming(_ conn: NWConnection) {
         conn.stateUpdateHandler = { [weak self] state in
-            if case .ready = state { self?.receive(on: conn) }
+            switch state {
+            case .ready: self?.receive(on: conn)
+            case .failed, .cancelled: conn.cancel()
+            default: break
+            }
         }
         conn.start(queue: .global(qos: .utility))
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 3) { conn.cancel() }
     }
 
     private func startMDNSAdvertising() {
@@ -104,8 +109,8 @@ class NetworkManager: NSObject {
                 domain: "local.", type: self.serviceType,
                 name: self.instanceID, port: Int32(self.tcpPort))
             let txt: [String: Data] = [
-                "id": self.instanceID.data(using: .utf8)!,
-                "name": self.displayName.data(using: .utf8)!,
+                "id": self.instanceID.data(using: .utf8) ?? Data(),
+                "name": self.displayName.data(using: .utf8) ?? Data(),
             ]
             self.netService?.setTXTRecord(NetService.data(fromTXTRecord: txt))
             self.netService?.delegate = self

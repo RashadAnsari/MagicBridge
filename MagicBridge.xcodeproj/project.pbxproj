@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		19E3E8F0903CAF64416BCD74 /* NetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FB759E404E52188F5D2FEB4 /* NetworkManagerTests.swift */; };
 		4F2EA1A3AF2970C61B2A8944 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3F552D61A9E2B2BC8ABCEF9 /* IOBluetooth.framework */; };
 		53341D1BDEC72EFAF1E9C2DA /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEFEED1F97009AB4F427B1D /* AppStateTests.swift */; };
 		7FA3672794822C64A1CEBBA5 /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */; };
@@ -39,6 +40,7 @@
 		714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
 		73741D9E85B15E09BAB202E6 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		84D9AAA668078B250712B949 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
+		8FB759E404E52188F5D2FEB4 /* NetworkManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManagerTests.swift; sourceTree = "<group>"; };
 		917BFBD41D2302A39121806E /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		A98EE369F9F7644B304DF1EC /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		B3F552D61A9E2B2BC8ABCEF9 /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = System/Library/Frameworks/IOBluetooth.framework; sourceTree = SDKROOT; };
@@ -78,6 +80,7 @@
 			children = (
 				3FEFEED1F97009AB4F427B1D /* AppStateTests.swift */,
 				F8E7BDAD78FC9754743CB13B /* BluetoothManagerTests.swift */,
+				8FB759E404E52188F5D2FEB4 /* NetworkManagerTests.swift */,
 			);
 			path = MagicBridgeTests;
 			sourceTree = "<group>";
@@ -220,6 +223,7 @@
 			files = (
 				53341D1BDEC72EFAF1E9C2DA /* AppStateTests.swift in Sources */,
 				95E2EA6D4D2CAF32A721A2EE /* BluetoothManagerTests.swift in Sources */,
+				19E3E8F0903CAF64416BCD74 /* NetworkManagerTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
