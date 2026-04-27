@@ -5,8 +5,6 @@ import XCTest
 class BluetoothManagerTests: XCTestCase {
     let bt = BluetoothManager()
 
-    // MARK: - isMagicDeviceName
-
     func testMagicMouseIsRecognised() {
         XCTAssertTrue(bt.isMagicDeviceName("Magic Mouse"))
         XCTAssertTrue(bt.isMagicDeviceName("Magic Mouse 2"))
@@ -28,8 +26,9 @@ class BluetoothManagerTests: XCTestCase {
         XCTAssertFalse(bt.isMagicDeviceName(""))
     }
 
-    func testCaseSensitivity() {
-        XCTAssertFalse(bt.isMagicDeviceName("magic mouse"))
-        XCTAssertFalse(bt.isMagicDeviceName("MAGIC KEYBOARD"))
+    func testCaseInsensitiveMatching() {
+        XCTAssertTrue(bt.isMagicDeviceName("magic mouse"))
+        XCTAssertTrue(bt.isMagicDeviceName("MAGIC KEYBOARD"))
+        XCTAssertTrue(bt.isMagicDeviceName("magic trackpad 2"))
     }
 }

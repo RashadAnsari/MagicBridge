@@ -9,7 +9,7 @@ SIGN_IDENTITY ?= $(shell security find-identity -v -p codesigning 2>/dev/null | 
 deps:
 	@which xcodegen > /dev/null || brew install xcodegen
 
-install:
+install: deps
 	xcodegen generate
 	xcodebuild -scheme $(APP_NAME) -configuration Debug build \
 		CODE_SIGNING_ALLOWED=NO \
@@ -18,11 +18,11 @@ install:
 	xattr -dr com.apple.quarantine /Applications/$(APP_NAME).app
 	open /Applications/$(APP_NAME).app
 
-uninstall:
+uninstall: deps
 	rm -rf /Applications/$(APP_NAME).app
 	defaults delete $(APP_BUNDLE_IDENTIFIER)
 
-clean:
+clean: deps
 	xcodebuild -scheme $(APP_NAME) clean 2>/dev/null || true
 	rm -rf $(APP_NAME).xcodeproj
 
@@ -53,15 +53,15 @@ release: deps
 		exit 1; \
 	fi
 
-test:
+test: deps
 	xcodegen generate
 	xcodebuild -scheme $(APP_NAME) -configuration Debug test \
 		-destination 'platform=macOS' \
 		CODE_SIGNING_ALLOWED=NO \
 		CODE_SIGNING_REQUIRED=NO
 
-format:
+format: deps
 	xcrun swift-format format --in-place --recursive $(APP_NAME)
 
-lint:
+lint: deps
 	xcrun swift-format lint --recursive $(APP_NAME)
