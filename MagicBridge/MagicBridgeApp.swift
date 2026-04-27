@@ -25,6 +25,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         setupNetworkCallbacks()
         network.start()
         bluetooth.requestPermission()
+        bluetooth.onDeviceStateChanged = { [weak self] in self?.refreshDevices() }
+        bluetooth.startNotifications()
         refreshDevices()
         startRefreshTimer()
         promptLaunchAtLoginIfNeeded()
@@ -96,7 +98,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             popover.performClose(nil)
         } else {
             popover.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
-            NSApp.activate(ignoringOtherApps: true)
+            if #available(macOS 14.0, *) {
+                NSApp.activate()
+            } else {
+                NSApp.activate(ignoringOtherApps: true)
+            }
         }
     }
 
@@ -121,46 +127,36 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     // MARK: - Actions
 
     private func handleConnect(_ device: MagicDevice) {
-        appState.isSwitching = true
         appState.statusMessage = "Connecting \(device.name)..."
-
-        let finish = { [weak self] (error: ConnectError?) in
-            guard let self else { return }
-            self.appState.isSwitching = false
-            if error != nil {
-                self.appState.statusMessage = "Failed to connect. Try again."
-            } else {
-                self.refreshDevices()
-            }
-        }
-
-        if appState.peerConnected {
-            network.sendRelease(devices: [device]) { [weak self] confirmed in
-                guard let self else { return }
-                if !confirmed {
-                    self.appState.statusMessage =
-                        "Some MacBooks did not respond — connecting anyway..."
-                }
-                self.bluetooth.connect(device: device, completion: finish)
-            }
-        } else {
-            bluetooth.connect(device: device, completion: finish)
+        performConnect(devices: [device]) { bt, finish in
+            bt.connect(device: device, completion: finish)
         }
     }
 
     private func handleRelease(_ device: MagicDevice) {
         appState.statusMessage = "Releasing \(device.name)..."
-        bluetooth.release(device: device) { [weak self] _ in
-            self?.refreshDevices()
+        bluetooth.release(device: device) { [weak self] success in
+            guard let self else { return }
+            self.appState.statusMessage =
+                success ? "Device released" : "Could not release \(device.name)"
+            self.refreshDevices()
         }
     }
 
     private func handleSwitchAll() {
         let targets = appState.enabledDevices
         guard !targets.isEmpty else { return }
-
-        appState.isSwitching = true
         appState.statusMessage = "Switching..."
+        performConnect(devices: targets) { bt, finish in
+            bt.connectAll(devices: targets, completion: finish)
+        }
+    }
+
+    private func performConnect(
+        devices: [MagicDevice],
+        btConnect: @escaping (BluetoothManager, @escaping (ConnectError?) -> Void) -> Void
+    ) {
+        appState.isSwitching = true
 
         let finish = { [weak self] (error: ConnectError?) in
             guard let self else { return }
@@ -173,16 +169,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         if appState.peerConnected {
-            network.sendRelease(devices: targets) { [weak self] confirmed in
+            network.sendRelease(devices: devices) { [weak self] confirmed in
                 guard let self else { return }
                 if !confirmed {
                     self.appState.statusMessage =
                         "Some MacBooks did not respond — connecting anyway..."
                 }
-                self.bluetooth.connectAll(devices: targets, completion: finish)
+                btConnect(self.bluetooth, finish)
             }
         } else {
-            bluetooth.connectAll(devices: targets, completion: finish)
+            btConnect(bluetooth, finish)
         }
     }
 
@@ -208,15 +204,16 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         bluetooth.scanForMagicDevices { [weak self] devices in
             guard let self else { return }
             self.appState.setScannedDevices(devices)
+            self.bluetooth.registerDisconnectNotifications(for: devices)
             let anyHere = self.appState.devices.contains { $0.isConnected }
             self.appState.statusMessage =
                 anyHere ? "Devices on this MacBook" : "Devices on another MacBook"
-            self.statusItem.button?.image = self.icon()
         }
     }
 
     private func startRefreshTimer() {
-        refreshTimer = Timer.scheduledTimer(withTimeInterval: 3.0, repeats: true) { [weak self] _ in
+        refreshTimer = Timer.scheduledTimer(withTimeInterval: 60.0, repeats: true) {
+            [weak self] _ in
             self?.refreshDevices()
         }
     }

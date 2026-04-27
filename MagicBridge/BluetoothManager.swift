@@ -11,11 +11,54 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
         label: "me.ansarihamedani.magicbridge.bluetooth", qos: .userInitiated)
     private var centralManager: CBCentralManager?
 
+    var onDeviceStateChanged: (() -> Void)?
+    private var connectNotification: IOBluetoothUserNotification?
+    private var disconnectNotifications: [String: IOBluetoothUserNotification] = [:]
+
     func requestPermission() {
         centralManager = CBCentralManager(delegate: self, queue: .main)
     }
 
     func centralManagerDidUpdateState(_ central: CBCentralManager) {}
+
+    func startNotifications() {
+        connectNotification = IOBluetoothDevice.register(
+            forConnectNotifications: self,
+            selector: #selector(deviceDidConnect(_:device:)))
+    }
+
+    func registerDisconnectNotifications(for devices: [MagicDevice]) {
+        for device in devices where device.isConnected {
+            guard disconnectNotifications[device.id] == nil,
+                let btDevice = IOBluetoothDevice(addressString: device.id)
+            else { continue }
+            disconnectNotifications[device.id] = btDevice.register(
+                forDisconnectNotification: self,
+                selector: #selector(deviceDidDisconnect(_:device:)))
+        }
+    }
+
+    @objc private func deviceDidConnect(
+        _ notification: IOBluetoothUserNotification, device: IOBluetoothDevice
+    ) {
+        guard isMagicDevice(device) else { return }
+        let address = device.addressString ?? ""
+        if !address.isEmpty {
+            disconnectNotifications[address] = device.register(
+                forDisconnectNotification: self,
+                selector: #selector(deviceDidDisconnect(_:device:)))
+        }
+        onDeviceStateChanged?()
+    }
+
+    @objc private func deviceDidDisconnect(
+        _ notification: IOBluetoothUserNotification, device: IOBluetoothDevice
+    ) {
+        if let address = device.addressString {
+            disconnectNotifications.removeValue(forKey: address)
+        }
+        onDeviceStateChanged?()
+    }
 
     func scanForMagicDevices(completion: @escaping ([MagicDevice]) -> Void) {
         btQueue.async {
@@ -86,8 +129,11 @@ class BluetoothManager: NSObject, CBCentralManagerDelegate {
     }
 
     private func isMagicDevice(_ device: IOBluetoothDevice) -> Bool {
-        let name = device.name ?? device.nameOrAddress ?? ""
-        return name.contains("Magic Mouse")
+        isMagicDeviceName(device.name ?? device.nameOrAddress ?? "")
+    }
+
+    func isMagicDeviceName(_ name: String) -> Bool {
+        name.contains("Magic Mouse")
             || name.contains("Magic Keyboard")
             || name.contains("Magic Trackpad")
     }

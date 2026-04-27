@@ -1,6 +1,10 @@
 import AppKit
 import Foundation
 import Network
+import OSLog
+import SystemConfiguration
+
+private let logger = Logger(subsystem: "me.ansarihamedani.magicbridge", category: "network")
 
 class NetworkManager: NSObject {
     private let serviceType = "_magicbridge._tcp"
@@ -36,7 +40,9 @@ class NetworkManager: NSObject {
             UserDefaults.standard.set(id, forKey: key)
             instanceID = id
         }
-        displayName = Host.current().localizedName ?? ProcessInfo.processInfo.hostName
+        displayName =
+            SCDynamicStoreCopyComputerName(nil, nil) as String?
+            ?? ProcessInfo.processInfo.hostName
         super.init()
     }
 
@@ -73,14 +79,16 @@ class NetworkManager: NSObject {
 
     private func startTCPListener() {
         do {
-            listener = try NWListener(using: .tcp, on: NWEndpoint.Port(rawValue: tcpPort)!)
+            listener = try NWListener(
+                using: .tcp,
+                on: NWEndpoint.Port(rawValue: tcpPort) ?? .any)
             listener?.newConnectionHandler = { [weak self] conn in self?.handleIncoming(conn) }
             listener?.stateUpdateHandler = { state in
-                if case .failed(let e) = state { print("[Net] Listener: \(e)") }
+                if case .failed(let e) = state { logger.error("Listener failed: \(e)") }
             }
             listener?.start(queue: .global(qos: .utility))
         } catch {
-            print("[Net] TCP listener failed: \(error)")
+            logger.error("TCP listener failed to start: \(error)")
         }
     }
 
@@ -164,9 +172,13 @@ class NetworkManager: NSObject {
 
     private func sendOneShot(_ msg: [String: Any], to host: String, port: Int) {
         guard let data = try? JSONSerialization.data(withJSONObject: msg) else { return }
+        let framed = frame(data)
+        guard port > 0, port <= Int(UInt16.max),
+            let nwPort = NWEndpoint.Port(rawValue: UInt16(port))
+        else { return }
         let endpoint = NWEndpoint.hostPort(
             host: NWEndpoint.Host(host),
-            port: NWEndpoint.Port(rawValue: UInt16(port))!)
+            port: nwPort)
         let conn = NWConnection(to: endpoint, using: .tcp)
         let queue = DispatchQueue.global(qos: .utility)
         let finishQueue = DispatchQueue(label: "me.ansarihamedani.magicbridge.network.oneshot")
@@ -181,7 +193,7 @@ class NetworkManager: NSObject {
         queue.asyncAfter(deadline: .now() + 3) { finish() }
         conn.stateUpdateHandler = { state in
             if case .ready = state {
-                conn.send(content: data, completion: .contentProcessed { _ in finish() })
+                conn.send(content: framed, completion: .contentProcessed { _ in finish() })
             } else if case .failed = state {
                 finish()
             }
@@ -232,9 +244,15 @@ class NetworkManager: NSObject {
     private func sendReleaseTo(
         host: String, port: Int, deviceIDs: [String], completion: @escaping (Bool) -> Void
     ) {
+        guard port > 0, port <= Int(UInt16.max),
+            let nwPort = NWEndpoint.Port(rawValue: UInt16(port))
+        else {
+            completion(false)
+            return
+        }
         let endpoint = NWEndpoint.hostPort(
             host: NWEndpoint.Host(host),
-            port: NWEndpoint.Port(rawValue: UInt16(port))!)
+            port: nwPort)
         let conn = NWConnection(to: endpoint, using: .tcp)
         let finishQueue = DispatchQueue(label: "me.ansarihamedani.magicbridge.network.finish")
         var done = false
@@ -266,45 +284,60 @@ class NetworkManager: NSObject {
 
     // MARK: - Messaging
 
+    private func frame(_ data: Data) -> Data {
+        var length = UInt32(data.count).bigEndian
+        var framed = Data(bytes: &length, count: 4)
+        framed.append(data)
+        return framed
+    }
+
     private func send(_ msg: [String: Any], on conn: NWConnection) {
         guard let data = try? JSONSerialization.data(withJSONObject: msg) else { return }
-        conn.send(content: data, completion: .contentProcessed { _ in })
+        conn.send(content: frame(data), completion: .contentProcessed { _ in })
     }
 
     private func receive(on conn: NWConnection, onDevicesReleased: (() -> Void)? = nil) {
-        conn.receive(minimumIncompleteLength: 1, maximumLength: 4096) { [weak self] data, _, _, _ in
-            guard let self, let data, !data.isEmpty else { return }
-            guard let msg = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-                let action = msg["action"] as? String
-            else { return }
-            let deviceIDs = msg["devices"] as? [String] ?? []
-            switch action {
-            case "release_devices":
-                DispatchQueue.main.async {
-                    self.onReceiveRelease?(deviceIDs) {
-                        self.send(
-                            [
-                                "action": "devices_released", "sender": self.instanceID,
-                                "devices": deviceIDs,
-                            ], on: conn)
-                    }
-                }
-            case "devices_released":
-                onDevicesReleased?()
-            case "hello":
-                let senderID = msg["id"] as? String ?? ""
-                let senderName = msg["name"] as? String ?? ""
-                guard !senderID.isEmpty, senderID != self.instanceID else { return }
-                if let host = self.remoteHost(of: conn) {
+        conn.receive(minimumIncompleteLength: 4, maximumLength: 4) { [weak self] header, _, _, _ in
+            guard let self, let header, header.count == 4 else { return }
+            let length = header.withUnsafeBytes { $0.load(as: UInt32.self).bigEndian }
+            guard length > 0, length <= 1_048_576 else { return }
+            conn.receive(minimumIncompleteLength: Int(length), maximumLength: Int(length)) {
+                [weak self] payload, _, _, _ in
+                guard let self, let payload, !payload.isEmpty else { return }
+                guard let msg = try? JSONSerialization.jsonObject(with: payload) as? [String: Any],
+                    let action = msg["action"] as? String
+                else { return }
+                let deviceIDs = msg["devices"] as? [String] ?? []
+                switch action {
+                case "release_devices":
                     DispatchQueue.main.async {
-                        self.peerLastHello[senderID] = Date()
-                        self.peerAddresses[senderID] = (host: host, port: Int(self.tcpPort))
-                        if !(self.appState?.peers.contains(where: { $0.id == senderID }) ?? false) {
-                            self.appState?.peers.append(Peer(id: senderID, name: senderName))
+                        self.onReceiveRelease?(deviceIDs) {
+                            self.send(
+                                [
+                                    "action": "devices_released", "sender": self.instanceID,
+                                    "devices": deviceIDs,
+                                ], on: conn)
                         }
                     }
+                case "devices_released":
+                    onDevicesReleased?()
+                case "hello":
+                    let senderID = msg["id"] as? String ?? ""
+                    let senderName = msg["name"] as? String ?? ""
+                    guard !senderID.isEmpty, senderID != self.instanceID else { return }
+                    if let host = self.remoteHost(of: conn) {
+                        DispatchQueue.main.async {
+                            self.peerLastHello[senderID] = Date()
+                            self.peerAddresses[senderID] = (host: host, port: Int(self.tcpPort))
+                            if !(self.appState?.peers.contains(where: { $0.id == senderID })
+                                ?? false)
+                            {
+                                self.appState?.peers.append(Peer(id: senderID, name: senderName))
+                            }
+                        }
+                    }
+                default: break
                 }
-            default: break
             }
         }
     }
@@ -384,6 +417,6 @@ extension NetworkManager: NetServiceDelegate {
     }
 
     func netService(_ sender: NetService, didNotPublish errorDict: [String: NSNumber]) {
-        print("[Net] Publish failed: \(errorDict)")
+        logger.error("mDNS publish failed: \(errorDict)")
     }
 }

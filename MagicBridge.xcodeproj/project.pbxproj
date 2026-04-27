@@ -8,27 +8,44 @@
 
 /* Begin PBXBuildFile section */
 		4F2EA1A3AF2970C61B2A8944 /* IOBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B3F552D61A9E2B2BC8ABCEF9 /* IOBluetooth.framework */; };
+		53341D1BDEC72EFAF1E9C2DA /* AppStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3FEFEED1F97009AB4F427B1D /* AppStateTests.swift */; };
 		7FA3672794822C64A1CEBBA5 /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */; };
+		95E2EA6D4D2CAF32A721A2EE /* BluetoothManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F8E7BDAD78FC9754743CB13B /* BluetoothManagerTests.swift */; };
 		999E195D1304C1AE9DA47BDF /* Network.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4F6A982B61811335DC5739D4 /* Network.framework */; };
 		A458D84A018CD19B8EAED224 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BFB150B39EEF1C747A5F7E4B /* Assets.xcassets */; };
 		AAEF9A528CF1D9934BF5FDFF /* MenuBarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D9AAA668078B250712B949 /* MenuBarView.swift */; };
+		BCAE65B7B165614B9BE452D3 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 73741D9E85B15E09BAB202E6 /* SystemConfiguration.framework */; };
 		C35636E40535DD04D690E4D4 /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98EE369F9F7644B304DF1EC /* NetworkManager.swift */; };
 		D5B0A0FEE5674813B19921FB /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BA327333FE0BC21951754BD /* CoreBluetooth.framework */; };
 		FD62D46B31B6FCAE6D26D545 /* MagicBridgeApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */; };
 		FF5A8CB35D982D84F8E572AF /* AppState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917BFBD41D2302A39121806E /* AppState.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		CC2D6DC2ACF6FA494E608B33 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 720F3B40C4D2AB5B204AF0E4 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 74E99C50F7E0DCAB462C1394;
+			remoteInfo = MagicBridge;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		09E8D7C11D52FF16CF1BC0C6 /* MagicBridgeApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagicBridgeApp.swift; sourceTree = "<group>"; };
+		3FEFEED1F97009AB4F427B1D /* AppStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStateTests.swift; sourceTree = "<group>"; };
 		4F6A982B61811335DC5739D4 /* Network.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Network.framework; path = System/Library/Frameworks/Network.framework; sourceTree = SDKROOT; };
 		6BA327333FE0BC21951754BD /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		714658E29E7BEF55BA8B0567 /* BluetoothManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
+		73741D9E85B15E09BAB202E6 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		84D9AAA668078B250712B949 /* MenuBarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuBarView.swift; sourceTree = "<group>"; };
 		917BFBD41D2302A39121806E /* AppState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppState.swift; sourceTree = "<group>"; };
 		A98EE369F9F7644B304DF1EC /* NetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		B3F552D61A9E2B2BC8ABCEF9 /* IOBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IOBluetooth.framework; path = System/Library/Frameworks/IOBluetooth.framework; sourceTree = SDKROOT; };
 		BFB150B39EEF1C747A5F7E4B /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		D1455C4C5F7D238D3352A4EC /* MagicBridge.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MagicBridge.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E981BE4958DC517DB062F619 /* MagicBridgeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MagicBridgeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F8E7BDAD78FC9754743CB13B /* BluetoothManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BluetoothManagerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -39,6 +56,7 @@
 				999E195D1304C1AE9DA47BDF /* Network.framework in Frameworks */,
 				D5B0A0FEE5674813B19921FB /* CoreBluetooth.framework in Frameworks */,
 				4F2EA1A3AF2970C61B2A8944 /* IOBluetooth.framework in Frameworks */,
+				BCAE65B7B165614B9BE452D3 /* SystemConfiguration.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -49,9 +67,19 @@
 			isa = PBXGroup;
 			children = (
 				F09E25B5F24CA8FBA6E3862C /* MagicBridge */,
+				2741481FE4E3FAE6F3471C58 /* MagicBridgeTests */,
 				452249B93A9C9E013A7207B0 /* Frameworks */,
 				8CEBD083BD4126889CC775C9 /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		2741481FE4E3FAE6F3471C58 /* MagicBridgeTests */ = {
+			isa = PBXGroup;
+			children = (
+				3FEFEED1F97009AB4F427B1D /* AppStateTests.swift */,
+				F8E7BDAD78FC9754743CB13B /* BluetoothManagerTests.swift */,
+			);
+			path = MagicBridgeTests;
 			sourceTree = "<group>";
 		};
 		452249B93A9C9E013A7207B0 /* Frameworks */ = {
@@ -60,6 +88,7 @@
 				6BA327333FE0BC21951754BD /* CoreBluetooth.framework */,
 				B3F552D61A9E2B2BC8ABCEF9 /* IOBluetooth.framework */,
 				4F6A982B61811335DC5739D4 /* Network.framework */,
+				73741D9E85B15E09BAB202E6 /* SystemConfiguration.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -68,6 +97,7 @@
 			isa = PBXGroup;
 			children = (
 				D1455C4C5F7D238D3352A4EC /* MagicBridge.app */,
+				E981BE4958DC517DB062F619 /* MagicBridgeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -88,6 +118,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		1E26FA68FBAFEF18E5AA5EED /* MagicBridgeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 221AE57A51D4CF8837FC8C42 /* Build configuration list for PBXNativeTarget "MagicBridgeTests" */;
+			buildPhases = (
+				2A6CB2DD2A78F299A77CA6EF /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				D42CEFEF3E58F364E96213CD /* PBXTargetDependency */,
+			);
+			name = MagicBridgeTests;
+			packageProductDependencies = (
+			);
+			productName = MagicBridgeTests;
+			productReference = E981BE4958DC517DB062F619 /* MagicBridgeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		74E99C50F7E0DCAB462C1394 /* MagicBridge */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 54A8766C202A713E4DE0513F /* Build configuration list for PBXNativeTarget "MagicBridge" */;
@@ -137,6 +185,7 @@
 			projectRoot = "";
 			targets = (
 				74E99C50F7E0DCAB462C1394 /* MagicBridge */,
+				1E26FA68FBAFEF18E5AA5EED /* MagicBridgeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -165,7 +214,24 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		2A6CB2DD2A78F299A77CA6EF /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				53341D1BDEC72EFAF1E9C2DA /* AppStateTests.swift in Sources */,
+				95E2EA6D4D2CAF32A721A2EE /* BluetoothManagerTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		D42CEFEF3E58F364E96213CD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 74E99C50F7E0DCAB462C1394 /* MagicBridge */;
+			targetProxy = CC2D6DC2ACF6FA494E608B33 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		27C2414E1DA4E704EAD0F9A4 /* Debug */ = {
@@ -188,6 +254,24 @@
 				PRODUCT_BUNDLE_IDENTIFIER = me.ansarihamedani.magicbridge.app;
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		69C1CD33A326CEBCE508EDF1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ansarihamedani.magicbridge.MagicBridgeTests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MagicBridge.app/Contents/MacOS/MagicBridge";
 			};
 			name = Debug;
 		};
@@ -244,6 +328,24 @@
 				SWIFT_COMPILATION_MODE = wholemodule;
 				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		9EAA39E041B1CDCBA939853B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 13.0;
+				PRODUCT_BUNDLE_IDENTIFIER = me.ansarihamedani.magicbridge.MagicBridgeTests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MagicBridge.app/Contents/MacOS/MagicBridge";
 			};
 			name = Release;
 		};
@@ -336,6 +438,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		221AE57A51D4CF8837FC8C42 /* Build configuration list for PBXNativeTarget "MagicBridgeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				69C1CD33A326CEBCE508EDF1 /* Debug */,
+				9EAA39E041B1CDCBA939853B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
 		42292E6FDD839302B1EC3EEE /* Build configuration list for PBXProject "MagicBridge" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

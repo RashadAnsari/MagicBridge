@@ -23,7 +23,6 @@ struct MenuBarView: View {
         }
         .padding(16)
         .frame(width: 300)
-        .preferredColorScheme(.dark)
     }
 
     // MARK: - Sections
@@ -60,6 +59,9 @@ struct MenuBarView: View {
                         Circle().fill(Color.green).frame(width: 8, height: 8)
                         Text(peer.name)
                             .font(.system(size: 12))
+                            .lineLimit(1)
+                            .truncationMode(.tail)
+                            .help(peer.name)
                     }
                 }
             }
@@ -150,6 +152,7 @@ private struct DeviceRow: View {
                     .font(.system(size: 14))
             }
             .buttonStyle(.plain)
+            .accessibilityLabel(isEnabled ? "Disable \(device.name)" : "Enable \(device.name)")
 
             Circle()
                 .fill(device.isConnected ? Color.green : Color.gray)
