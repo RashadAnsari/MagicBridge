@@ -2,7 +2,8 @@ APP_NAME = MagicBridge
 APP_BUNDLE_IDENTIFIER = me.ansarihamedani.magicbridge.app
 DERIVED_DATA = $(HOME)/Library/Developer/Xcode/DerivedData
 BUILD_DIR = $(shell find $(DERIVED_DATA) -name "$(APP_NAME).app" -path "*/Debug/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
-SIGN_IDENTITY ?= $(shell security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Developer ID Application/{print $$2; exit} /Apple Development/{print $$2; exit}')
+SIGN_IDENTITY ?= $(shell security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Developer ID Application/{did=$$2} /Apple Development/{dev=$$2} END{print (did != "") ? did : dev}')
+NOTARY_PROFILE ?= magicbridge
 
 .PHONY: deps install uninstall clean release test format lint
 
@@ -37,7 +38,9 @@ release: deps
 		CODE_SIGN_STYLE=Manual \
 		CODE_SIGN_IDENTITY="$(SIGN_IDENTITY)" \
 		CODE_SIGN_ENTITLEMENTS=MagicBridge/MagicBridge.entitlements \
-		ENABLE_HARDENED_RUNTIME=YES
+		ENABLE_HARDENED_RUNTIME=YES \
+		OTHER_CODE_SIGN_FLAGS=--timestamp \
+		CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO
 	@RELEASE_DIR=$$(find $(DERIVED_DATA) -name "$(APP_NAME).app" -path "*/Release/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null) && \
 	APP_PATH="$$RELEASE_DIR/$(APP_NAME).app" && \
 	if [ -d "$$APP_PATH" ]; then \
@@ -46,8 +49,22 @@ release: deps
 		xattr -dr com.apple.quarantine "./$(APP_NAME).app"; \
 		codesign --verify --deep --strict "./$(APP_NAME).app" && echo "Signature verified"; \
 		ditto -c -k --keepParent "./$(APP_NAME).app" "./$(APP_NAME).zip"; \
+		echo "Submitting for notarization (profile: $(NOTARY_PROFILE))..."; \
+		NOTARY_OUT=$$(xcrun notarytool submit "./$(APP_NAME).zip" --keychain-profile $(NOTARY_PROFILE) --wait) || exit 1; \
+		echo "$$NOTARY_OUT"; \
+		if ! echo "$$NOTARY_OUT" | grep -q "status: Accepted"; then \
+			SUBMISSION_ID=$$(echo "$$NOTARY_OUT" | awk '/id:/{print $$2; exit}'); \
+			echo "Notarization failed, fetching log..."; \
+			xcrun notarytool log "$$SUBMISSION_ID" --keychain-profile $(NOTARY_PROFILE); \
+			exit 1; \
+		fi; \
+		xcrun stapler staple "./$(APP_NAME).app"; \
+		rm -f "./$(APP_NAME).zip"; \
+		ditto -c -k --keepParent "./$(APP_NAME).app" "./$(APP_NAME).zip"; \
+		spctl -a -vv "./$(APP_NAME).app"; \
 		echo ""; \
-		echo "Done: $(APP_NAME).app  $(APP_NAME).zip"; \
+		shasum -a 256 "./$(APP_NAME).zip"; \
+		echo "Done: $(APP_NAME).app  $(APP_NAME).zip (notarized + stapled)"; \
 	else \
 		echo "Release build not found"; \
 		exit 1; \
