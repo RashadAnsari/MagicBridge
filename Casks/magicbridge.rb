@@ -7,7 +7,7 @@ cask "magicbridge" do
   desc "Share a Magic Keyboard, Mouse, or Trackpad between Macs"
   homepage "https://github.com/RashadAnsari/MagicBridge"
 
-  depends_on macos: ">= :ventura"
+  depends_on macos: :ventura
 
   app "MagicBridge.app"
 
