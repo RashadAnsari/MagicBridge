@@ -28,6 +28,7 @@ Apple's Magic devices only pair with one Mac at a time. If you sit between a per
 
 ```bash
 brew tap rashadansari/magicbridge https://github.com/RashadAnsari/MagicBridge
+brew trust --cask rashadansari/magicbridge/magicbridge
 brew install --cask magicbridge
 ```
 

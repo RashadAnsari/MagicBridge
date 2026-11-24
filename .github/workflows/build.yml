@@ -143,6 +143,7 @@ jobs:
             With Homebrew:
             ```
             brew tap rashadansari/magicbridge https://github.com/RashadAnsari/MagicBridge
+            brew trust --cask rashadansari/magicbridge/magicbridge
             brew install --cask magicbridge
             ```
 
