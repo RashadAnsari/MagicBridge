@@ -1,6 +1,6 @@
 cask "magicbridge" do
-  version "1.0.10,11"
-  sha256 "c5be21143f93d30fc3c622153eca1b6061971411b844a3c38ef3e8abab8b460d"
+  version "1.0.11,12"
+  sha256 "4ed4bdb6a4bbb5a7be03364e7d0045cc153eff6e57a4575c90fb3311f6171d13"
 
   url "https://github.com/RashadAnsari/MagicBridge/releases/download/#{version.csv.first}+#{version.csv.second}/MagicBridge.zip"
   name "MagicBridge"
