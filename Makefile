@@ -4,6 +4,7 @@ DERIVED_DATA = $(HOME)/Library/Developer/Xcode/DerivedData
 BUILD_DIR = $(shell find $(DERIVED_DATA) -name "$(APP_NAME).app" -path "*/Debug/*" 2>/dev/null | head -1 | xargs dirname 2>/dev/null)
 SIGN_IDENTITY ?= $(shell security find-identity -v -p codesigning 2>/dev/null | awk -F'"' '/Developer ID Application/{did=$$2} /Apple Development/{dev=$$2} END{print (did != "") ? did : dev}')
 NOTARY_PROFILE ?= magicbridge
+NOTARY_AUTH ?= --keychain-profile $(NOTARY_PROFILE)
 
 .PHONY: deps install uninstall clean release test format lint
 
@@ -49,13 +50,13 @@ release: deps
 		xattr -dr com.apple.quarantine "./$(APP_NAME).app"; \
 		codesign --verify --deep --strict "./$(APP_NAME).app" && echo "Signature verified"; \
 		ditto -c -k --keepParent "./$(APP_NAME).app" "./$(APP_NAME).zip"; \
-		echo "Submitting for notarization (profile: $(NOTARY_PROFILE))..."; \
-		NOTARY_OUT=$$(xcrun notarytool submit "./$(APP_NAME).zip" --keychain-profile $(NOTARY_PROFILE) --wait) || exit 1; \
+		echo "Submitting for notarization..."; \
+		NOTARY_OUT=$$(xcrun notarytool submit "./$(APP_NAME).zip" $(NOTARY_AUTH) --wait) || exit 1; \
 		echo "$$NOTARY_OUT"; \
 		if ! echo "$$NOTARY_OUT" | grep -q "status: Accepted"; then \
 			SUBMISSION_ID=$$(echo "$$NOTARY_OUT" | awk '/id:/{print $$2; exit}'); \
 			echo "Notarization failed, fetching log..."; \
-			xcrun notarytool log "$$SUBMISSION_ID" --keychain-profile $(NOTARY_PROFILE); \
+			xcrun notarytool log "$$SUBMISSION_ID" $(NOTARY_AUTH); \
 			exit 1; \
 		fi; \
 		xcrun stapler staple "./$(APP_NAME).app"; \
@@ -81,4 +82,4 @@ format: deps
 	xcrun swift-format format --in-place --recursive $(APP_NAME)
 
 lint: deps
-	xcrun swift-format lint --recursive $(APP_NAME)
+	xcrun swift-format lint --strict --recursive $(APP_NAME)

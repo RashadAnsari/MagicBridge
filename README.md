@@ -70,7 +70,7 @@ Each Mac running MagicBridge does a few things at once:
 
 ## Building from Source
 
-Prerequisites: Xcode 15+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
+Prerequisites: Xcode 16+ and [XcodeGen](https://github.com/yonaskolb/XcodeGen) (`brew install xcodegen`).
 
 ```bash
 # Install dependencies (xcodegen)
@@ -79,11 +79,22 @@ make deps
 # Build and install directly to /Applications (no code signing required)
 make install
 
-# Release build: signed, produces MagicBridge.app and MagicBridge.zip
+# Run the unit tests
+make test
+
+# Check and fix formatting with swift-format
+make lint
+make format
+
+# Release build: signed, notarized and stapled, produces MagicBridge.app and MagicBridge.zip
 make release
 ```
 
-`make install` builds a debug binary, copies it to `/Applications/MagicBridge.app`, strips quarantine, and launches it. `make release` produces a signed `MagicBridge.app` and `MagicBridge.zip` in the project root (requires a Developer ID certificate; notarize the zip before distributing).
+`make install` builds a debug binary, copies it to `/Applications/MagicBridge.app`, strips quarantine, and launches it. `make release` needs a Developer ID Application certificate in the keychain and notarytool credentials stored under the keychain profile `magicbridge` (`xcrun notarytool store-credentials magicbridge`); it prints the zip's SHA-256 when done.
+
+## Releases
+
+GitHub Actions lints, tests and builds every pull request and every push to `master`. When a push to `master` carries a version in `project.yml` (`CFBundleShortVersionString` and `CFBundleVersion`) that has no GitHub release yet, the workflow signs and notarizes the app, publishes `MagicBridge.zip` under the tag `<version>+<build>`, and updates `Casks/magicbridge.rb` with the new version and SHA-256. To cut a release, raise both values in `project.yml`, run `xcodegen generate`, and merge to `master`.
 
 ## License
 

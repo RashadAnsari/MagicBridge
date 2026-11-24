@@ -1,0 +1,174 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  lint:
+    name: Lint and test
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Check generated Xcode project is up to date
+        run: |
+          xcodegen generate
+          git diff --exit-code
+
+      - name: Lint
+        run: make lint
+
+      - name: Test
+        run: make test
+
+  version:
+    name: Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      build: ${{ steps.version.outputs.build }}
+      tag: ${{ steps.version.outputs.tag }}
+      release: ${{ steps.version.outputs.release }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check whether to release
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          # CFBundleShortVersionString 1.0.10 and CFBundleVersion 11 become tag 1.0.10+11
+          VERSION=$(sed -n 's/^ *CFBundleShortVersionString: *"\(.*\)"/\1/p' project.yml)
+          BUILD=$(sed -n 's/^ *CFBundleVersion: *"\(.*\)"/\1/p' project.yml)
+          if ! echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+$' || ! echo "$BUILD" | grep -Eq '^[0-9]+$'; then
+            echo "project.yml needs CFBundleShortVersionString MAJOR.MINOR.PATCH and a numeric CFBundleVersion, got $VERSION and $BUILD"
+            exit 1
+          fi
+          TAG="$VERSION+$BUILD"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "build=$BUILD" >> "$GITHUB_OUTPUT"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          # Release only from pushes to master, and only once per version
+          if [ "$GITHUB_EVENT_NAME" = "push" ] && ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "Version $TAG has no release yet: building the release package"
+          else
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          fi
+
+  build-macos:
+    needs: [lint, version]
+    name: Build (macOS)
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install XcodeGen
+        run: brew install xcodegen
+
+      - name: Build
+        if: needs.version.outputs.release != 'true'
+        run: |
+          xcodegen generate
+          xcodebuild -scheme MagicBridge -configuration Release build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
+
+      - name: Import signing certificate
+        if: needs.version.outputs.release == 'true'
+        env:
+          MACOS_CERT_P12: ${{ secrets.MACOS_CERT_P12 }}
+          MACOS_CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "$MACOS_CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$MACOS_CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN"
+          rm "$RUNNER_TEMP/cert.p12"
+
+      - name: Sign, notarize and package
+        if: needs.version.outputs.release == 'true'
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_PASSWORD: ${{ secrets.APPLE_APP_PASSWORD }}
+        run: |
+          make release \
+            SIGN_IDENTITY="Developer ID Application: Rashad Ansari (62TDQ32CK7)" \
+            NOTARY_AUTH='--apple-id "$$APPLE_ID" --password "$$APPLE_APP_PASSWORD" --team-id 62TDQ32CK7'
+
+      - name: Upload artifact
+        if: needs.version.outputs.release == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: MagicBridge
+          path: MagicBridge.zip
+
+  release:
+    name: Release
+    needs: [version, build-macos]
+    if: needs.version.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: MagicBridge
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.version.outputs.tag }}
+          name: Release ${{ needs.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          files: MagicBridge.zip
+          generate_release_notes: true
+          body: |
+            ## Installation
+
+            With Homebrew:
+            ```
+            brew tap rashadansari/magicbridge https://github.com/RashadAnsari/MagicBridge
+            brew install --cask magicbridge
+            ```
+
+            Or manually:
+
+            1. Unzip `MagicBridge.zip`
+            2. Move `MagicBridge.app` to your Applications folder
+            3. Open `MagicBridge.app` and grant Bluetooth access when prompted
+            4. Repeat on every Mac you want to share devices with
+
+      - name: Checkout master for Homebrew cask
+        uses: actions/checkout@v4
+        with:
+          ref: master
+          path: repo
+
+      - name: Update Homebrew cask
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+          BUILD: ${{ needs.version.outputs.build }}
+          TAG: ${{ needs.version.outputs.tag }}
+        run: |
+          SHA=$(sha256sum MagicBridge.zip | cut -d' ' -f1)
+          cd repo
+          sed -i -e "s/^  version \".*\"/  version \"$VERSION,$BUILD\"/" -e "s/^  sha256 \".*\"/  sha256 \"$SHA\"/" Casks/magicbridge.rb
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update Homebrew cask to $TAG"
+          git push origin master

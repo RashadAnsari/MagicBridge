@@ -53,8 +53,9 @@ class NetworkManagerTests: XCTestCase {
     }
 
     func testSendReleaseWithNoPeersCompletesImmediately() {
+        // A fresh manager: the shared one may already know the probe peer from setUp
         let exp = expectation(description: "completion called")
-        manager.sendRelease(devices: []) { allConfirmed in
+        NetworkManager().sendRelease(devices: []) { allConfirmed in
             XCTAssertTrue(allConfirmed)
             exp.fulfill()
         }

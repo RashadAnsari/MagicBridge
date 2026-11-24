@@ -20,6 +20,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     let network = NetworkManager()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // As a unit-test host, skip startup: its modal alert blocks the test runner and its
+        // listener takes the port the tests use.
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else {
+            return
+        }
         setupStatusItem()
         setupPopover()
         setupNetworkCallbacks()
